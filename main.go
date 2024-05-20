@@ -230,7 +230,7 @@ var (
 					winrate = float64(r.Wins) / float64(r.Wins+r.Loses) * 100
 				}
 				userField := &discordgo.MessageEmbedField{
-					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Wins, r.Loses, r.Rating, winrate),
+					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Rating, r.Wins, r.Loses, winrate),
 					Inline: true,
 				}
 				fields = append(fields, userField)
@@ -498,21 +498,52 @@ var (
 				team2Rating += r.Rating
 			}
 
-			// Edit the message old
-			_, err = s.ChannelMessageEditEmbeds(i.ChannelID, i.Message.ID, []*discordgo.MessageEmbed{
-				{
-					Title: "Teams",
-					Fields: []*discordgo.MessageEmbedField{
+			// Edit the message
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
 						{
-							Name:  fmt.Sprintf("Team 1 (%d)", team1Rating),
-							Value: team1String,
-						},
-						{
-							Name:  fmt.Sprintf("Team 2 (%d)", team1Rating),
-							Value: team2String,
+							Title: "Teams",
+							Fields: []*discordgo.MessageEmbedField{
+								{
+									Name:  fmt.Sprintf("Team 1 (%d)", team1Rating),
+									Value: team1String,
+								},
+								{
+									Name:  fmt.Sprintf("Team 2 (%d)", team1Rating),
+									Value: team2String,
+								},
+							},
+							Color: 0x00ff00,
+							Footer: &discordgo.MessageEmbedFooter{
+								Text: "Teams reshuffled",
+							},
 						},
 					},
-					Color: 0x00ff00,
+					Flags: discordgo.MessageFlagsLoading,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									CustomID: "start",
+									Emoji: &discordgo.ComponentEmoji{
+										Name: "▶️",
+									},
+									Label: "Start Match",
+									Style: discordgo.SecondaryButton,
+								},
+								discordgo.Button{
+									CustomID: "reshuffle",
+									Emoji: &discordgo.ComponentEmoji{
+										Name: "🔁",
+									},
+									Label: "Reshuffle Teams",
+									Style: discordgo.SecondaryButton,
+								},
+							},
+						},
+					},
 				},
 			})
 			if err != nil {
@@ -520,7 +551,6 @@ var (
 					Content: "Something went wrong",
 				})
 			}
-
 		},
 	}
 )
@@ -550,7 +580,6 @@ type ratingData struct {
 }
 
 func loadRatings() ([]*ratingData, error) {
-	log.Println("Loading ratings...")
 	// Open the file
 	file, err := os.Open("ratings.json")
 	if err != nil {

@@ -88,5 +88,11 @@
         "rating": 4,
         "wins": 0,
         "loses": 1
+    },
+    {
+        "userID": "309745753591382019",
+        "rating": 4,
+        "wins": 0,
+        "loses": 0
     }
 ]
