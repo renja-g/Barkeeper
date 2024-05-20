@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"sort"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -221,21 +222,31 @@ var (
 				})
 				return
 			}
-
+		
+			// Calculate winrate and store it in the struct
+			for _, r := range ratings {
+				if r.Wins+r.Loses > 0 {
+					r.Winrate = float64(r.Wins) / float64(r.Wins+r.Loses) * 100
+				} else {
+					r.Winrate = 0.0
+				}
+			}
+		
+			// Sort the ratings by winrate
+			sort.Slice(ratings, func(i, j int) bool {
+				return ratings[i].Winrate > ratings[j].Winrate
+			})
+		
 			// Generate the list of users
 			fields := []*discordgo.MessageEmbedField{}
 			for _, r := range ratings {
-				winrate := 0.0
-				if r.Wins+r.Loses > 0 {
-					winrate = float64(r.Wins) / float64(r.Wins+r.Loses) * 100
-				}
 				userField := &discordgo.MessageEmbedField{
-					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Rating, r.Wins, r.Loses, winrate),
+					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Rating, r.Wins, r.Loses, r.Winrate),
 					Inline: true,
 				}
 				fields = append(fields, userField)
 			}
-
+		
 			// Send the list
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -577,6 +588,7 @@ type ratingData struct {
 	Rating int    `json:"rating"`
 	Wins   int    `json:"wins"`
 	Loses  int    `json:"loses"`
+	Winrate float64 // no json tag as this is calculated, not loaded
 }
 
 func loadRatings() ([]*ratingData, error) {
