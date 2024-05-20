@@ -251,20 +251,33 @@ var (
 				})
 				return
 			}
-
-			// Sort the ratings by winrate
+		
+			// Wilson score calculation function
+			weightedWilsonScore := func(wins, losses int) float64 {
+				n := wins + losses
+				if n == 0 {
+					return 0
+				}
+				z := 1.96 // 1.96 for 95% confidence interval
+				phat := float64(wins) / float64(n)
+				// Multiply the Wilson score by the square root of the number of games played
+				weightedScore := math.Sqrt(float64(n)) * ((phat + z*z/(2*float64(n)) - z*math.Sqrt((phat*(1-phat)+z*z/(4*float64(n)))/float64(n))) / (1 + z*z/float64(n)))
+				return weightedScore
+			}
+		
+			// Map to store Wilson scores for each player
+			wilsonScores := make(map[string]float64)
+		
+			// Calculate Wilson score for each player and store in the map
+			for _, r := range ratings {
+				wilsonScores[r.UserID] = weightedWilsonScore(r.Wins, r.Loses)
+			}
+		
+			// Sort the ratings by Wilson score
 			sort.Slice(ratings, func(i, j int) bool {
-				winrateI := float64(0)
-				winrateJ := float64(0)
-				if ratings[i].Wins+ratings[i].Loses > 0 {
-					winrateI = float64(ratings[i].Wins) / float64(ratings[i].Wins+ratings[i].Loses) * 100
-				}
-				if ratings[j].Wins+ratings[j].Loses > 0 {
-					winrateJ = float64(ratings[j].Wins) / float64(ratings[j].Wins+ratings[j].Loses) * 100
-				}
-				return winrateI > winrateJ
+				return wilsonScores[ratings[i].UserID] > wilsonScores[ratings[j].UserID]
 			})
-
+		
 			// Generate the list of users
 			fields := []*discordgo.MessageEmbedField{}
 			for _, r := range ratings {
@@ -273,7 +286,7 @@ var (
 					winrate = float64(r.Wins) / float64(r.Wins+r.Loses) * 100
 				}
 				userField := &discordgo.MessageEmbedField{
-					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Rating, r.Wins, r.Loses, winrate),
+					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%\nWilson Score: %.4f", r.UserID, r.Rating, r.Wins, r.Loses, winrate, wilsonScores[r.UserID]),
 					Inline: true,
 				}
 				fields = append(fields, userField)
