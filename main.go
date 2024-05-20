@@ -649,13 +649,219 @@ var (
 			}
 		},
 		"team1_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			matchID := parseMatchID(i)
 
+			// Load the matches from the file
+			matches, err := loadMatches()
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot load matches",
+				})
+				return
+			}
+
+			// Find the match in the matches
+			var match *matchData
+			for _, m := range matches {
+				if m.MatchID == matchID {
+					match = m
+					break
+				}
+			}
+
+			// If the match is not found return an error
+			if match == nil {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Embeds: []*discordgo.MessageEmbed{
+							{
+								Title:       "Error",
+								Description: "Match not found",
+								Color:       0xff0000,
+							},
+						},
+					},
+				})
+				return
+			}
+
+			// Update the match
+			match.Winner = "team1"
+
+			// Save the matches back to the file
+			err = saveMatches(matches)
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot save matches",
+				})
+				return
+			}
+
+			// Edit the message
+			oldEmbed := i.Message.Embeds[0]
+			oldEmbed.Title = "Match finished"
+			oldEmbed.Description = "Team 1 wins"
+
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						oldEmbed,
+					},
+					Flags: discordgo.MessageFlagsLoading,
+				},
+			})
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Something went wrong",
+				})
+			}
 		},
 		"team2_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			matchID := parseMatchID(i)
 
+			// Load the matches from the file
+			matches, err := loadMatches()
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot load matches",
+				})
+				return
+			}
+
+			// Find the match in the matches
+			var match *matchData
+			for _, m := range matches {
+				if m.MatchID == matchID {
+					match = m
+					break
+				}
+			}
+
+			// If the match is not found return an error
+			if match == nil {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Embeds: []*discordgo.MessageEmbed{
+							{
+								Title:       "Error",
+								Description: "Match not found",
+								Color:       0xff0000,
+							},
+						},
+					},
+				})
+				return
+			}
+
+			// Update the match
+			match.Winner = "team2"
+
+			// Save the matches back to the file
+			err = saveMatches(matches)
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot save matches",
+				})
+				return
+			}
+
+			// Edit the message
+			oldEmbed := i.Message.Embeds[0]
+			oldEmbed.Title = "Match finished"
+			oldEmbed.Description = "Team 2 wins"
+
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						oldEmbed,
+					},
+					Flags: discordgo.MessageFlagsLoading,
+				},
+			})
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Something went wrong",
+				})
+			}
 		},
 		"cancel_match": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		
+			matchID := parseMatchID(i)
+
+			// Load the matches from the file
+			matches, err := loadMatches()
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot load matches",
+				})
+				return
+			}
+
+			// Find the match in the matches
+			var match *matchData
+			for _, m := range matches {
+				if m.MatchID == matchID {
+					match = m
+					break
+				}
+			}
+
+			// If the match is not found return an error
+			if match == nil {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Embeds: []*discordgo.MessageEmbed{
+							{
+								Title:       "Error",
+								Description: "Match not found",
+								Color:       0xff0000,
+							},
+						},
+					},
+				})
+				return
+			}
+
+			// Remove the match from the matches
+			newMatches := []*matchData{}
+			for _, m := range matches {
+				if m.MatchID != matchID {
+					newMatches = append(newMatches, m)
+				}
+			}
+
+			// Save the matches back to the file
+			err = saveMatches(newMatches)
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot save matches",
+				})
+				return
+			}
+
+			// Edit the message
+			oldEmbed := i.Message.Embeds[0]
+			oldEmbed.Title = "Match cancelled"
+			oldEmbed.Description = "The match has been cancelled"
+			oldEmbed.Color = 0xff0000
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						oldEmbed,
+					},
+					Flags: discordgo.MessageFlagsLoading,
+				},
+			})
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Something went wrong",
+				})
+			}
 		},
 	}
 )
@@ -795,6 +1001,18 @@ func parseTeams(i *discordgo.InteractionCreate) ([]string, []string) {
 
 	return team1IDs, team2IDs
 }
+
+
+func parseMatchID(i *discordgo.InteractionCreate) string {
+	// Define a regex to match the match ID in the format MatchID: 123456789
+	re := regexp.MustCompile(`MatchID: (\d+)`)
+
+	// Parse the footer to get the match ID
+	matchID := re.FindStringSubmatch(i.Message.Embeds[0].Footer.Text)[1]
+
+	return matchID
+}
+
 
 func generateTeams(users []*ratingData) ([]*ratingData, []*ratingData) {
 	n := len(users)
