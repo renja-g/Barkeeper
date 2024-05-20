@@ -596,6 +596,54 @@ var (
 			matches = append(matches, match)
 			saveMatches(matches)
 
+			// Move the team members to the team voice channels
+			// Voice channel names must be "Team 1" and "Team 2"
+			guild, err := s.State.Guild(i.GuildID)
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot get the guild",
+				})
+				return
+			}
+
+			// Get the voice channels
+			var team1ChannelID, team2ChannelID string
+			channels, _ := s.GuildChannels(guild.ID)
+			for _, c := range channels {
+				if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 1" {
+					team1ChannelID = c.ID
+				} else if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 2" {
+					team2ChannelID = c.ID
+				}
+			}
+
+			if team1ChannelID == "" || team2ChannelID == "" {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot find the team voice channels",
+				})
+			}
+
+			// Move the team members
+			for _, userID := range team1 {
+				err = s.GuildMemberMove(guild.ID, userID, &team1ChannelID)
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Cannot move the team members",
+					})
+					return
+				}
+			}
+
+			for _, userID := range team2 {
+				err = s.GuildMemberMove(guild.ID, userID, &team2ChannelID)
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Cannot move the team members",
+					})
+					return
+				}
+			}
+
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match in progress"
