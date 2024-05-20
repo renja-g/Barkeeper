@@ -1,0 +1,92 @@
+[
+    {
+        "userID": "319459741287972867",
+        "rating": 5,
+        "wins": 4,
+        "loses": 1
+    },
+    {
+        "userID": "389130156146425856",
+        "rating": 6,
+        "wins": 2,
+        "loses": 3
+    },
+    {
+        "userID": "657936468332904461",
+        "rating": 7,
+        "wins": 3,
+        "loses": 2
+    },
+    {
+        "userID": "809402221568458840",
+        "rating": 5,
+        "wins": 0,
+        "loses": 0
+    },
+    {
+        "userID": "246770217064202240",
+        "rating": 9,
+        "wins": 4,
+        "loses": 1
+    },
+    {
+        "userID": "401448318602969118",
+        "rating": 6,
+        "wins": 0,
+        "loses": 0
+    },
+    {
+        "userID": "1041344858008342589",
+        "rating": 9,
+        "wins": 1,
+        "loses": 4
+    },
+    {
+        "userID": "693227659777278012",
+        "rating": 5,
+        "wins": 0,
+        "loses": 0
+    },
+    {
+        "userID": "208969370859339779",
+        "rating": 7,
+        "wins": 2,
+        "loses": 3
+    },
+    {
+        "userID": "545341717029847050",
+        "rating": 7,
+        "wins": 2,
+        "loses": 3
+    },
+    {
+        "userID": "363607955989331971",
+        "rating": 5,
+        "wins": 1,
+        "loses": 0
+    },
+    {
+        "userID": "879378292308869170",
+        "rating": 6,
+        "wins": 3,
+        "loses": 2
+    },
+    {
+        "userID": "301464399212707840",
+        "rating": 5,
+        "wins": 2,
+        "loses": 3
+    },
+    {
+        "userID": "944773929623502851",
+        "rating": 4,
+        "wins": 1,
+        "loses": 2
+    },
+    {
+        "userID": "282035605008023552",
+        "rating": 4,
+        "wins": 0,
+        "loses": 1
+    }
+]
