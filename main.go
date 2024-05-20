@@ -15,14 +15,16 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/bwmarrin/snowflake"
 	"github.com/joho/godotenv"
 )
 
-// Bot parameters
+// Global variables
 var (
     GuildID        string
     BotToken       string
     RemoveCommands = true
+	Node           *snowflake.Node
 )
 
 var s *discordgo.Session
@@ -33,8 +35,16 @@ func init() {
 	godotenv.Load(".env")
 	GuildID = os.Getenv("GUILD_ID")
     BotToken = os.Getenv("BOT_TOKEN")
-	
+
 	var err error
+
+	// Create a new Node with a Node number of 1
+	Node, err = snowflake.NewNode(1)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	
 	s, err = discordgo.New("Bot " + BotToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
@@ -576,6 +586,7 @@ var (
 			team1, team2 := parseTeams(i)
 
 			match := &matchData{
+				MatchID: Node.Generate().String(),
 				Team1: team1,
 				Team2: team2,
 				Winner: "",
@@ -589,6 +600,9 @@ var (
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match in progress"
 			oldEmbed.Description = "Select the winner of the match"
+			oldEmbed.Footer = &discordgo.MessageEmbedFooter{
+				Text: "MatchID: " + match.MatchID,
+			}
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseUpdateMessage,
 				Data: &discordgo.InteractionResponseData{
@@ -634,6 +648,15 @@ var (
 				})
 			}
 		},
+		"team1_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+		},
+		"team2_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+		},
+		"cancel_match": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		
+		},
 	}
 )
 
@@ -663,6 +686,7 @@ type ratingData struct {
 }
 
 type matchData struct {
+	MatchID   string   `json:"matchID"` // snowflake
 	Team1     []string `json:"team1"`
 	Team2     []string `json:"team2"`
 	Winner    string   `json:"winner"`
