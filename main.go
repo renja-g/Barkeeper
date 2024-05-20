@@ -251,26 +251,29 @@ var (
 				})
 				return
 			}
-		
-			// Calculate winrate and store it in the struct
-			for _, r := range ratings {
-				if r.Wins+r.Loses > 0 {
-					r.Winrate = float64(r.Wins) / float64(r.Wins+r.Loses) * 100
-				} else {
-					r.Winrate = 0.0
-				}
-			}
-		
+
 			// Sort the ratings by winrate
 			sort.Slice(ratings, func(i, j int) bool {
-				return ratings[i].Winrate > ratings[j].Winrate
+				winrateI := float64(0)
+				winrateJ := float64(0)
+				if ratings[i].Wins+ratings[i].Loses > 0 {
+					winrateI = float64(ratings[i].Wins) / float64(ratings[i].Wins+ratings[i].Loses) * 100
+				}
+				if ratings[j].Wins+ratings[j].Loses > 0 {
+					winrateJ = float64(ratings[j].Wins) / float64(ratings[j].Wins+ratings[j].Loses) * 100
+				}
+				return winrateI > winrateJ
 			})
-		
+
 			// Generate the list of users
 			fields := []*discordgo.MessageEmbedField{}
 			for _, r := range ratings {
+				winrate := float64(0)
+				if r.Wins+r.Loses > 0 {
+					winrate = float64(r.Wins) / float64(r.Wins+r.Loses) * 100
+				}
 				userField := &discordgo.MessageEmbedField{
-					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Rating, r.Wins, r.Loses, r.Winrate),
+					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Rating, r.Wins, r.Loses, winrate),
 					Inline: true,
 				}
 				fields = append(fields, userField)
@@ -796,6 +799,42 @@ var (
 				return
 			}
 
+			ratings, err := loadRatings()
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot load ratings",
+				})
+				return
+			}
+
+			// Update the ratings
+			for _, userID := range match.Team1 {
+				for _, r := range ratings {
+					if r.UserID == userID {
+						r.Wins++
+						break
+					}
+				}
+			}
+
+			for _, userID := range match.Team2 {
+				for _, r := range ratings {
+					if r.UserID == userID {
+						r.Loses++
+						break
+					}
+				}
+			}
+
+			// Save the ratings back to the file
+			err = saveRatings(ratings)
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot save ratings",
+				})
+				return
+			}
+
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match finished"
@@ -881,6 +920,43 @@ var (
 				})
 				return
 			}
+
+			ratings, err := loadRatings()
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot load ratings",
+				})
+				return
+			}
+
+			// Update the ratings
+			for _, userID := range match.Team1 {
+				for _, r := range ratings {
+					if r.UserID == userID {
+						r.Loses++
+						break
+					}
+				}
+			}
+
+			for _, userID := range match.Team2 {
+				for _, r := range ratings {
+					if r.UserID == userID {
+						r.Wins++
+						break
+					}
+				}
+			}
+
+			// Save the ratings back to the file
+			err = saveRatings(ratings)
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot save ratings",
+				})
+				return
+			}
+
 
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
@@ -1018,7 +1094,6 @@ type ratingData struct {
 	Rating int    `json:"rating"`
 	Wins   int    `json:"wins"`
 	Loses  int    `json:"loses"`
-	Winrate float64 // no json tag as this is calculated, not loaded
 }
 
 type matchData struct {
