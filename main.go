@@ -659,27 +659,6 @@ var (
 				})
 			}
 
-			// Move the team members
-			for _, userID := range team1 {
-				err = s.GuildMemberMove(guild.ID, userID, &team1ChannelID)
-				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Cannot move the team members",
-					})
-					return
-				}
-			}
-
-			for _, userID := range team2 {
-				err = s.GuildMemberMove(guild.ID, userID, &team2ChannelID)
-				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Cannot move the team members",
-					})
-					return
-				}
-			}
-
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match in progress"
@@ -730,6 +709,27 @@ var (
 				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 					Content: "Something went wrong",
 				})
+			}
+			
+			// Move the team members
+			for _, userID := range team1 {
+				err = s.GuildMemberMove(guild.ID, userID, &team1ChannelID)
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Cannot move the team members",
+					})
+					return
+				}
+			}
+
+			for _, userID := range team2 {
+				err = s.GuildMemberMove(guild.ID, userID, &team2ChannelID)
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Cannot move the team members",
+					})
+					return
+				}
 			}
 		},
 		"team1_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
