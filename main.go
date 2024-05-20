@@ -10,7 +10,9 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"regexp"
 	"sort"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
@@ -426,19 +428,6 @@ var (
 	}
 
 	componentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"start": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "Match started",
-				},
-			})
-			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something went wrong",
-				})
-			}
-		},
 		"reshuffle": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			// Load the ratings from the file
 			ratings, err := loadRatings()
@@ -563,6 +552,88 @@ var (
 				})
 			}
 		},
+		"start": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			// save the match to the matches.json file
+			// [
+			// 	{
+			// 		"team1": ["userID1", "userID2", "userID3", "userID4", "userID5"],
+			// 		"team2": ["userID6", "userID7", "userID8", "userID9", "userID10"],
+			// 		"winner": "",
+			// 		"timestamp": 1234567890
+			// 	}
+
+			// Load the matches from the file
+			matches, err := loadMatches()
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Cannot load matches",
+				})
+				return
+			}
+
+			// use the message to get the team members
+			// parse the embed fields to get the team members
+			team1, team2 := parseTeams(i)
+
+			match := &matchData{
+				Team1: team1,
+				Team2: team2,
+				Winner: "",
+				Timestamp: time.Now().Unix(),
+			}
+
+			matches = append(matches, match)
+			saveMatches(matches)
+
+			// Edit the message
+			oldEmbed := i.Message.Embeds[0]
+			oldEmbed.Title = "Match in progress"
+			oldEmbed.Description = "Select the winner of the match"
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						oldEmbed,
+					},
+					Flags: discordgo.MessageFlagsLoading,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									CustomID: "team1_wins",
+									Emoji: &discordgo.ComponentEmoji{
+										Name: "🏆",
+									},
+									Label: "Team 1 wins",
+									Style: discordgo.SuccessButton,
+								},
+								discordgo.Button{
+									CustomID: "team2_wins",
+									Emoji: &discordgo.ComponentEmoji{
+										Name: "🏆",
+									},
+									Label: "Team 2 wins",
+									Style: discordgo.SuccessButton,
+								},
+								discordgo.Button{
+									CustomID: "cancel_match",
+									Emoji: &discordgo.ComponentEmoji{
+										Name: "❌",
+									},
+									Label: "Cancel match",
+									Style: discordgo.DangerButton,
+								},
+							},
+						},
+					},
+				},
+			})
+			if err != nil {
+				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "Something went wrong",
+				})
+			}
+		},
 	}
 )
 
@@ -591,6 +662,13 @@ type ratingData struct {
 	Winrate float64 // no json tag as this is calculated, not loaded
 }
 
+type matchData struct {
+	Team1     []string `json:"team1"`
+	Team2     []string `json:"team2"`
+	Winner    string   `json:"winner"`
+	Timestamp int64    `json:"timestamp"`
+}
+
 func loadRatings() ([]*ratingData, error) {
 	// Open the file
 	file, err := os.Open("ratings.json")
@@ -615,6 +693,30 @@ func loadRatings() ([]*ratingData, error) {
 	return ratings, nil
 }
 
+func loadMatches() ([]*matchData, error) {
+	// Open the file
+	file, err := os.Open("matches.json")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Read the file
+	bytes, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unmarshal the JSON into a slice of matchData
+	var matches []*matchData
+	err = json.Unmarshal(bytes, &matches)
+	if err != nil {
+		return nil, err
+	}
+
+	return matches, nil
+}
+
 func saveRatings(ratings []*ratingData) error {
 	// Marshal the ratings into JSON
 	bytes, err := json.MarshalIndent(ratings, "", "    ")
@@ -629,6 +731,45 @@ func saveRatings(ratings []*ratingData) error {
 	}
 
 	return nil
+}
+
+func saveMatches(matches []*matchData) error {
+	// Marshal the matches into JSON
+	bytes, err := json.MarshalIndent(matches, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	// Write the JSON to the file
+	err = os.WriteFile("matches.json", bytes, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func parseTeams(i *discordgo.InteractionCreate) ([]string, []string) {
+	// Define a regex to match user IDs in the format <@123456789> and optionally capture the score
+	re := regexp.MustCompile(`<@(\d+)> \d+`)
+
+	// Parse the embed fields to get the team members
+	team1Matches := re.FindAllStringSubmatch(i.Message.Embeds[0].Fields[0].Value, -1)
+	team2Matches := re.FindAllStringSubmatch(i.Message.Embeds[0].Fields[1].Value, -1)
+
+	// Extract the user IDs
+	extractUserIDs := func(matches [][]string) []string {
+		userIDs := make([]string, len(matches))
+		for i, match := range matches {
+			userIDs[i] = match[1]
+		}
+		return userIDs
+	}
+
+	team1IDs := extractUserIDs(team1Matches)
+	team2IDs := extractUserIDs(team2Matches)
+
+	return team1IDs, team2IDs
 }
 
 func generateTeams(users []*ratingData) ([]*ratingData, []*ratingData) {
