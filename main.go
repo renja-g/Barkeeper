@@ -111,6 +111,23 @@ var (
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"rate": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			if !isPrivilegedUser(s, i) {
+				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Only Barbacks can rate users",
+						Flags:   discordgo.MessageFlagsEphemeral,
+					},
+				})
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Something went wrong",
+					})
+				}
+				return
+			}
+			
+			
 			// Get the user ID and rating from the options
 			userID := i.ApplicationCommandData().Options[0].UserValue(s).ID
 			rating := i.ApplicationCommandData().Options[1].IntValue()
@@ -572,6 +589,22 @@ var (
 			// 		"timestamp": 1234567890
 			// 	}
 
+			if !isPrivilegedUser(s, i) {
+				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Only Barbacks can start a match",
+						Flags:   discordgo.MessageFlagsEphemeral,
+					},
+				})
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Something went wrong",
+					})
+				}
+				return
+			}
+
 			// Load the matches from the file
 			matches, err := loadMatches()
 			if err != nil {
@@ -697,6 +730,23 @@ var (
 			}
 		},
 		"team1_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			if !isPrivilegedUser(s, i) {
+				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Only Barbacks can set a winner",
+						Flags:   discordgo.MessageFlagsEphemeral,
+					},
+				})
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Something went wrong",
+					})
+				}
+				return
+			}
+			
+			
 			matchID := parseMatchID(i)
 
 			// Load the matches from the file
@@ -767,6 +817,22 @@ var (
 			}
 		},
 		"team2_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			if !isPrivilegedUser(s, i) {
+				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Only Barbacks can set a winners",
+						Flags:   discordgo.MessageFlagsEphemeral,
+					},
+				})
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Something went wrong",
+					})
+				}
+				return
+			}
+			
 			matchID := parseMatchID(i)
 
 			// Load the matches from the file
@@ -837,6 +903,22 @@ var (
 			}
 		},
 		"cancel_match": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			if !isPrivilegedUser(s, i) {
+				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Only Barbacks can cancel a match",
+						Flags:   discordgo.MessageFlagsEphemeral,
+					},
+				})
+				if err != nil {
+					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+						Content: "Something went wrong",
+					})
+				}
+				return
+			}
+			
 			matchID := parseMatchID(i)
 
 			// Load the matches from the file
@@ -1115,6 +1197,30 @@ func abs(x int) int {
 		return -x
 	}
 	return x
+}
+
+func isPrivilegedUser(s *discordgo.Session, i *discordgo.InteractionCreate) bool {
+    // Get the member who initiated the interaction
+    member, err := s.GuildMember(i.GuildID, i.Member.User.ID)
+    if err != nil {
+        // Handle error
+        return false
+    }
+
+    // Check if the member has the required role
+    for _, roleID := range member.Roles {
+        role, err := s.State.Role(i.GuildID, roleID)
+        if err != nil {
+            // Handle error
+            continue
+        }
+
+        if role.Name == "Barback" {
+            return true
+        }
+    }
+
+    return false
 }
 
 func main() {
