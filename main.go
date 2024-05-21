@@ -540,7 +540,7 @@ var (
 				fields = append(fields, &discordgo.MessageEmbedField{
 					Name:   fmt.Sprintf("Team **%s** won:", winner),
 					Value:  fmt.Sprintf("Blue\n%s\nRed\n%s\n<t:%d:R>", team1String, team2String, m.Timestamp),
-					Inline: false,
+					Inline: true,
 				})
 			}
 
