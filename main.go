@@ -1100,7 +1100,7 @@ type matchData struct {
 
 func loadRatings() ([]*ratingData, error) {
 	// Open the file
-	file, err := os.Open("ratings.json")
+	file, err := os.Open("data/ratings.json")
 	if err != nil {
 		return nil, err
 	}
@@ -1124,7 +1124,7 @@ func loadRatings() ([]*ratingData, error) {
 
 func loadMatches() ([]*matchData, error) {
 	// Open the file
-	file, err := os.Open("matches.json")
+	file, err := os.Open("data/matches.json")
 	if err != nil {
 		return nil, err
 	}
@@ -1154,7 +1154,7 @@ func saveRatings(ratings []*ratingData) error {
 	}
 
 	// Write the JSON to the file
-	err = os.WriteFile("ratings.json", bytes, 0644)
+	err = os.WriteFile("data/ratings.json", bytes, 0644)
 	if err != nil {
 		return err
 	}
@@ -1170,7 +1170,7 @@ func saveMatches(matches []*matchData) error {
 	}
 
 	// Write the JSON to the file
-	err = os.WriteFile("matches.json", bytes, 0644)
+	err = os.WriteFile("data/matches.json", bytes, 0644)
 	if err != nil {
 		return err
 	}
