@@ -290,6 +290,8 @@ var (
 				return
 			}
 
+			online_count := 0
+
 			// Generate the list of users
 			fields := []*discordgo.MessageEmbedField{}
 			for _, r := range ratings {
@@ -299,7 +301,7 @@ var (
 				}
 
 				// Get the user status
-				var status string
+				var status = "offline"
 				for _, p := range guild.Presences {
 					if p.User.ID == r.UserID {
 						status = string(p.Status)
@@ -308,12 +310,9 @@ var (
 				}
 
 				statusEmoji := "🔴"
-				if status == "online" {
+				if status != "offline" {
 					statusEmoji = "🟢"
-				} else if status == "idle" {
-					statusEmoji = "🟢"
-				} else if status == "dnd" {
-					statusEmoji = "🟢"
+					online_count++
 				}
 
 				userField := &discordgo.MessageEmbedField{
@@ -329,11 +328,12 @@ var (
 				Data: &discordgo.InteractionResponseData{
 					Embeds: []*discordgo.MessageEmbed{
 						{
-							Title:  "Ratings",
+							Title:  fmt.Sprintf("%d / %d Online", online_count, len(ratings)),
 							Fields: fields,
 							Color:  0x00ff00,
 						},
 					},
+					Flags: discordgo.MessageFlagsLoading,
 				},
 			})
 		},
