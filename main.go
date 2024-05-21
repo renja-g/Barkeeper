@@ -100,6 +100,10 @@ var (
 			Name:        "help",
 			Description: "Shows the help message",
 		},
+		{
+			Name:        "history",
+			Description: "Shows the history of the matches",
+		},
 	}
 
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -222,7 +226,6 @@ var (
 			if err != nil {
 				log.Fatalf("error responding to interaction: %v", err)
 			}
-
 		},
 		"list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			// Load the ratings from the file
@@ -297,7 +300,7 @@ var (
 				}
 
 				userField := &discordgo.MessageEmbedField{
-					Value:  fmt.Sprintf("<@%s> %s\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%\nWilson Score: %.4f", r.UserID, statusEmoji, r.Rating, r.Wins, r.Loses, winrate, wilsonScores[r.UserID]),
+					Value:  fmt.Sprintf("<@%s> %s\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, statusEmoji, r.Rating, r.Wins, r.Loses, winrate),
 					Inline: true,
 				}
 				fields = append(fields, userField)
@@ -499,6 +502,58 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Embeds: []*discordgo.MessageEmbed{embed},
+				},
+			})
+			if err != nil {
+				log.Fatalf("error responding to interaction: %v", err)
+			}
+		},
+		"history": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			// Load the matches from the file
+			matches, err := loadMatches()
+			if err != nil {
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
+				return
+			}
+
+			// Generate the history
+			fields := []*discordgo.MessageEmbedField{}
+			for _, m := range matches {
+				team1String := ""
+				for _, id := range m.Team1 {
+					team1String += fmt.Sprintf("<@%s>\n", id)
+				}
+
+				team2String := ""
+				for _, id := range m.Team2 {
+					team2String += fmt.Sprintf("<@%s>\n", id)
+				}
+
+				winner := "Blue"
+				if m.Winner == "team2" {
+					winner = "Red"
+				}
+
+				fields = append(fields, &discordgo.MessageEmbedField{
+					Name:   fmt.Sprintf("Team **%s** won:", winner),
+					Value:  fmt.Sprintf("Blue\n%s\nRed\n%s\n<t:%d:R>", team1String, team2String, m.Timestamp),
+					Inline: false,
+				})
+			}
+
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						{
+							Title:  "Match History",
+							Fields: fields,
+							Color:  0x3498db,
+						},
+					},
 				},
 			})
 			if err != nil {
