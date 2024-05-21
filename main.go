@@ -228,7 +228,7 @@ var (
 						{
 							Title:       "User information",
 							Description: fmt.Sprintf("User: <@%s>\nRating: %d\nWins: %d\nLoses: %d\nWinrate: %.2f%%", userID, userRating.Rating, userRating.Wins, userRating.Loses, winrate),
-							Color:       0x00ff00,
+							Color:       0x3498db,
 						},
 					},
 				},
@@ -322,7 +322,7 @@ var (
 						{
 							Title:  fmt.Sprintf("%d / %d Online", online_count, len(ratings)),
 							Fields: fields,
-							Color:  0x00ff00,
+							Color:  0x3498db,
 						},
 					},
 					Flags: discordgo.MessageFlagsLoading,
@@ -369,7 +369,6 @@ var (
 			}
 
 			// Check if there are exactly 10 users in the voice channel
-			/*
 				if len(ids) != 10 {
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -379,7 +378,6 @@ var (
 					})
 					return
 				}
-			*/
 
 			// Check if all users are in the ratings
 			ratings, err := loadRatings()
@@ -462,7 +460,7 @@ var (
 									Value: team2String,
 								},
 							},
-							Color: 0x00ff00,
+							Color: 0x3498db,
 						},
 					},
 					Flags: discordgo.MessageFlagsLoading,
@@ -496,7 +494,7 @@ var (
 			// using the commands = []*discordgo.ApplicationCommand
 			embed := &discordgo.MessageEmbed{
 				Title:       "Help",
-				Color:       0x00ff00,
+				Color:       0x3498db,
 				Fields:      []*discordgo.MessageEmbedField{},
 			}
 
@@ -605,7 +603,7 @@ var (
 									Value: team2String,
 								},
 							},
-							Color: 0x00ff00,
+							Color: 0x3498db,
 							Footer: &discordgo.MessageEmbedFooter{
 								Text: "Teams reshuffled",
 							},
@@ -898,6 +896,7 @@ var (
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match finished"
 			oldEmbed.Description = "Team 1 wins"
+			oldEmbed.Color = 0x00ff00
 
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseUpdateMessage,
@@ -1020,6 +1019,7 @@ var (
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match finished"
 			oldEmbed.Description = "Team 2 wins"
+			oldEmbed.Color = 0x00ff00
 
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseUpdateMessage,
@@ -1112,6 +1112,7 @@ var (
 			oldEmbed.Title = "Match cancelled"
 			oldEmbed.Description = "The match has been cancelled"
 			oldEmbed.Color = 0xff0000
+
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseUpdateMessage,
 				Data: &discordgo.InteractionResponseData{
