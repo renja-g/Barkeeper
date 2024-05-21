@@ -105,19 +105,11 @@ var (
 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"rate": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if !isPrivilegedUser(s, i) {
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Only Barbacks can rate users",
-						Flags:   discordgo.MessageFlagsEphemeral,
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Only Barbacks can rate users", true))
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Something went wrong",
-					})
+					log.Fatalf("error responding to interaction: %v", err)
+					return
 				}
-				return
 			}
 
 			// Get the user ID and rating from the options
@@ -127,9 +119,10 @@ var (
 			// Load the ratings from the file
 			ratings, err := loadRatings()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -157,9 +150,10 @@ var (
 			// Save the ratings back to the file
 			err = saveRatings(ratings)
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot save ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot save ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -183,9 +177,10 @@ var (
 			// Load the ratings from the file
 			ratings, err := loadRatings()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -200,19 +195,10 @@ var (
 
 			// If the user is not in the ratings return an error
 			if userRating == nil {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Embeds: []*discordgo.MessageEmbed{
-							{
-								Title:       "Error",
-								Description: "User not found",
-								Color:       0xff0000,
-							},
-						},
-					},
-				})
-
+				err := s.InteractionRespond(i.Interaction, buildError("User not found"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -221,7 +207,7 @@ var (
 				winrate = float64(userRating.Wins) / float64(userRating.Wins+userRating.Loses) * 100
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Embeds: []*discordgo.MessageEmbed{
@@ -233,14 +219,19 @@ var (
 					},
 				},
 			})
+			if err != nil {
+				log.Fatalf("error responding to interaction: %v", err)
+			}
+
 		},
 		"list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			// Load the ratings from the file
 			ratings, err := loadRatings()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -273,12 +264,10 @@ var (
 			// get the discord status of the user
 			guild, err := s.State.Guild(i.GuildID)
 			if err != nil {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Cannot get the guild",
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot get the guild"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -315,7 +304,7 @@ var (
 			}
 
 			// Send the list
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Embeds: []*discordgo.MessageEmbed{
@@ -328,16 +317,17 @@ var (
 					Flags: discordgo.MessageFlagsLoading,
 				},
 			})
+			if err != nil {
+				log.Fatalf("error responding to interaction: %v", err)
+			}
 		},
 		"teams": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			guild, err := s.State.Guild(i.GuildID)
 			if err != nil {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Cannot get the guild",
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot get the guild"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -351,12 +341,10 @@ var (
 			}
 
 			if ChannelID == "" {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "You must be in a voice channel to use this command",
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("You must be in a voice channel to use this command"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -369,25 +357,21 @@ var (
 			}
 
 			// Check if there are exactly 10 users in the voice channel
-				if len(ids) != 10 {
-					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-						Type: discordgo.InteractionResponseChannelMessageWithSource,
-						Data: &discordgo.InteractionResponseData{
-							Content: "There must be exactly 10 users in the voice channel",
-						},
-					})
-					return
+			if len(ids) != 10 {
+				err := s.InteractionRespond(i.Interaction, buildError("There must be exactly 10 users in the voice channel"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
 				}
+				return
+			}
 
 			// Check if all users are in the ratings
 			ratings, err := loadRatings()
 			if err != nil {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Error loading ratings",
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -406,12 +390,14 @@ var (
 			}
 
 			if len(missingRatings) > 0 {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: fmt.Sprintf("The following users are missing ratings: %v", missingRatings),
-					},
-				})
+				errorMessage := "The following users are missing ratings:\n"
+				for _, id := range missingRatings {
+					errorMessage += fmt.Sprintf("<@%s>\n", id)
+				}
+				err := s.InteractionRespond(i.Interaction, buildError(errorMessage))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -444,7 +430,7 @@ var (
 				team2Rating += r.Rating
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Embeds: []*discordgo.MessageEmbed{
@@ -488,14 +474,17 @@ var (
 					},
 				},
 			})
+			if err != nil {
+				log.Fatalf("error responding to interaction: %v", err)
+			}
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			// Send an help embed
 			// using the commands = []*discordgo.ApplicationCommand
 			embed := &discordgo.MessageEmbed{
-				Title:       "Help",
-				Color:       0x3498db,
-				Fields:      []*discordgo.MessageEmbedField{},
+				Title:  "Help",
+				Color:  0x3498db,
+				Fields: []*discordgo.MessageEmbedField{},
 			}
 
 			for _, c := range commands {
@@ -506,12 +495,15 @@ var (
 				})
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Embeds: []*discordgo.MessageEmbed{embed},
 				},
 			})
+			if err != nil {
+				log.Fatalf("error responding to interaction: %v", err)
+			}
 		},
 	}
 
@@ -520,18 +512,20 @@ var (
 			// Load the ratings from the file
 			ratings, err := loadRatings()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
 			// Get the voice channel of the user who triggered the command
 			guild, err := s.State.Guild(i.GuildID)
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot get the guild",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot get the guild"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -544,9 +538,10 @@ var (
 			}
 
 			if ChannelID == "" {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "You must be in a voice channel to use this command",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("You must be in a voice channel to use this command"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -635,33 +630,14 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something went wrong",
-				})
+				log.Fatalf("error responding to interaction: %v", err)
 			}
 		},
 		"start": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			// save the match to the matches.json file
-			// [
-			// 	{
-			// 		"team1": ["userID1", "userID2", "userID3", "userID4", "userID5"],
-			// 		"team2": ["userID6", "userID7", "userID8", "userID9", "userID10"],
-			// 		"winner": "",
-			// 		"timestamp": 1234567890
-			// 	}
-
 			if !isPrivilegedUser(s, i) {
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Only Barbacks can start a match",
-						Flags:   discordgo.MessageFlagsEphemeral,
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Only Barbacks can start a match", true))
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Something went wrong",
-					})
+					log.Fatalf("error responding to interaction: %v", err)
 				}
 				return
 			}
@@ -669,9 +645,10 @@ var (
 			// Load the matches from the file
 			matches, err := loadMatches()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load matches",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -689,33 +666,6 @@ var (
 
 			matches = append(matches, match)
 			saveMatches(matches)
-
-			// Move the team members to the team voice channels
-			// Voice channel names must be "Team 1" and "Team 2"
-			guild, err := s.State.Guild(i.GuildID)
-			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot get the guild",
-				})
-				return
-			}
-
-			// Get the voice channels
-			var team1ChannelID, team2ChannelID string
-			channels, _ := s.GuildChannels(guild.ID)
-			for _, c := range channels {
-				if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 1" {
-					team1ChannelID = c.ID
-				} else if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 2" {
-					team2ChannelID = c.ID
-				}
-			}
-
-			if team1ChannelID == "" || team2ChannelID == "" {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot find the team voice channels",
-				})
-			}
 
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
@@ -764,18 +714,46 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something went wrong",
-				})
+				log.Fatalf("error responding to interaction: %v", err)
+			}
+
+			// Move the team members to the team voice channels
+			// Voice channel names must be "Team 1" and "Team 2"
+			guild, err := s.State.Guild(i.GuildID)
+			if err != nil {
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot get the guild"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
+				return
+			}
+
+			// Get the voice channels
+			var team1ChannelID, team2ChannelID string
+			channels, _ := s.GuildChannels(guild.ID)
+			for _, c := range channels {
+				if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 1" {
+					team1ChannelID = c.ID
+				} else if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 2" {
+					team2ChannelID = c.ID
+				}
+			}
+
+			if team1ChannelID == "" || team2ChannelID == "" {
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot find the team voice channels"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 			}
 
 			// Move the team members
 			for _, userID := range team1 {
 				err = s.GuildMemberMove(guild.ID, userID, &team1ChannelID)
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Cannot move the team members",
-					})
+					err := s.InteractionRespond(i.Interaction, buildError("Cannot move the team members"))
+					if err != nil {
+						log.Fatalf("error responding to interaction: %v", err)
+					}
 					return
 				}
 			}
@@ -783,26 +761,19 @@ var (
 			for _, userID := range team2 {
 				err = s.GuildMemberMove(guild.ID, userID, &team2ChannelID)
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Cannot move the team members",
-					})
+					err := s.InteractionRespond(i.Interaction, buildError("Cannot move the team members"))
+					if err != nil {
+						log.Fatalf("error responding to interaction: %v", err)
+					}
 					return
 				}
 			}
 		},
 		"team1_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if !isPrivilegedUser(s, i) {
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Only Barbacks can set a winner",
-						Flags:   discordgo.MessageFlagsEphemeral,
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Only Barbacks can set a winners", true))
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Something went wrong",
-					})
+					log.Fatalf("error responding to interaction: %v", err)
 				}
 				return
 			}
@@ -812,9 +783,10 @@ var (
 			// Load the matches from the file
 			matches, err := loadMatches()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load matches",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -829,18 +801,10 @@ var (
 
 			// If the match is not found return an error
 			if match == nil {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Embeds: []*discordgo.MessageEmbed{
-							{
-								Title:       "Error",
-								Description: "Match not found",
-								Color:       0xff0000,
-							},
-						},
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Match not found"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -850,17 +814,19 @@ var (
 			// Save the matches back to the file
 			err = saveMatches(matches)
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot save matches",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot save matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
 			ratings, err := loadRatings()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -886,9 +852,10 @@ var (
 			// Save the ratings back to the file
 			err = saveRatings(ratings)
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot save ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot save ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -908,24 +875,14 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something went wrong",
-				})
+				log.Fatalf("error responding to interaction: %v", err)
 			}
 		},
 		"team2_wins": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if !isPrivilegedUser(s, i) {
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Only Barbacks can set a winners",
-						Flags:   discordgo.MessageFlagsEphemeral,
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Only Barbacks can set a winners", true))
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Something went wrong",
-					})
+					log.Fatalf("error responding to interaction: %v", err)
 				}
 				return
 			}
@@ -935,9 +892,10 @@ var (
 			// Load the matches from the file
 			matches, err := loadMatches()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load matches",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -952,18 +910,10 @@ var (
 
 			// If the match is not found return an error
 			if match == nil {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Embeds: []*discordgo.MessageEmbed{
-							{
-								Title:       "Error",
-								Description: "Match not found",
-								Color:       0xff0000,
-							},
-						},
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Match not found"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -973,17 +923,19 @@ var (
 			// Save the matches back to the file
 			err = saveMatches(matches)
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot save matches",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot save matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
 			ratings, err := loadRatings()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -1009,9 +961,10 @@ var (
 			// Save the ratings back to the file
 			err = saveRatings(ratings)
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot save ratings",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot save ratings"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -1031,24 +984,14 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something went wrong",
-				})
+				log.Fatalf("error responding to interaction: %v", err)
 			}
 		},
 		"cancel_match": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if !isPrivilegedUser(s, i) {
-				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "Only Barbacks can cancel a match",
-						Flags:   discordgo.MessageFlagsEphemeral,
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Only Barbacks can cancel a match", true))
 				if err != nil {
-					s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-						Content: "Something went wrong",
-					})
+					log.Fatalf("error responding to interaction: %v", err)
 				}
 				return
 			}
@@ -1058,9 +1001,10 @@ var (
 			// Load the matches from the file
 			matches, err := loadMatches()
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot load matches",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot load matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -1075,18 +1019,10 @@ var (
 
 			// If the match is not found return an error
 			if match == nil {
-				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Embeds: []*discordgo.MessageEmbed{
-							{
-								Title:       "Error",
-								Description: "Match not found",
-								Color:       0xff0000,
-							},
-						},
-					},
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Match not found"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -1101,9 +1037,10 @@ var (
 			// Save the matches back to the file
 			err = saveMatches(newMatches)
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Cannot save matches",
-				})
+				err := s.InteractionRespond(i.Interaction, buildError("Cannot save matches"))
+				if err != nil {
+					log.Fatalf("error responding to interaction: %v", err)
+				}
 				return
 			}
 
@@ -1123,9 +1060,7 @@ var (
 				},
 			})
 			if err != nil {
-				s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "Something went wrong",
-				})
+				log.Fatalf("error responding to interaction: %v", err)
 			}
 		},
 	}
@@ -1353,6 +1288,34 @@ func isPrivilegedUser(s *discordgo.Session, i *discordgo.InteractionCreate) bool
 	}
 
 	return false
+}
+
+func buildError(errorMessage string, ephemeral ...bool) *discordgo.InteractionResponse {
+	// Set a default value
+	defaultEphemeral := false
+
+	// If any values are provided, use the first one
+	if len(ephemeral) > 0 {
+		defaultEphemeral = ephemeral[0]
+	}
+
+	res := &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Embeds: []*discordgo.MessageEmbed{
+				{
+					Title:       "Error",
+					Description: errorMessage,
+					Color:       0xff0000,
+				},
+			},
+		},
+	}
+
+	if defaultEphemeral {
+		res.Data.Flags = discordgo.MessageFlagsEphemeral
+	}
+	return res
 }
 
 func main() {
