@@ -58,19 +58,7 @@ var (
 	commands = []*discordgo.ApplicationCommand{
 		{
 			Name:        "rate",
-			Description: "Rates of sets the rating of a user",
-			// The rating will be saved in a json file ratings.json
-			// If the user is already in the file, the rating will be updated
-			/*
-				[
-					{
-						"userID": 1234,
-						"rating": 0,
-						"wins": 0,
-						"loses": 0
-					}
-				]
-			*/
+			Description: "Sets the rating of a user.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -90,7 +78,7 @@ var (
 		},
 		{
 			Name:        "info",
-			Description: "Returns information about a user",
+			Description: "Returns information about a user.",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionUser,
@@ -102,11 +90,15 @@ var (
 		},
 		{
 			Name:        "list",
-			Description: "Lists all the rated users",
+			Description: "Returns an ordered list of all users.",
 		},
 		{
 			Name:        "teams",
-			Description: "Generates fair teams of the users in the voice channel",
+			Description: "Generates fair teams of the users in the voice channel.",
+		},
+		{
+			Name:        "help",
+			Description: "Shows the help message",
 		},
 	}
 
@@ -496,6 +488,30 @@ var (
 							},
 						},
 					},
+				},
+			})
+		},
+		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			// Send an help embed
+			// using the commands = []*discordgo.ApplicationCommand
+			embed := &discordgo.MessageEmbed{
+				Title:       "Help",
+				Color:       0x00ff00,
+				Fields:      []*discordgo.MessageEmbedField{},
+			}
+
+			for _, c := range commands {
+				embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
+					Name:   c.Name,
+					Value:  c.Description,
+					Inline: false,
+				})
+			}
+
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{embed},
 				},
 			})
 		},
