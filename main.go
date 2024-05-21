@@ -21,9 +21,9 @@ import (
 
 // Global variables
 var (
-    GuildID        string
-    BotToken       string
-    RemoveCommands = true
+	GuildID        string
+	BotToken       string
+	RemoveCommands = true
 	Node           *snowflake.Node
 )
 
@@ -34,7 +34,7 @@ func init() { flag.Parse() }
 func init() {
 	godotenv.Load(".env")
 	GuildID = os.Getenv("GUILD_ID")
-    BotToken = os.Getenv("BOT_TOKEN")
+	BotToken = os.Getenv("BOT_TOKEN")
 
 	var err error
 
@@ -44,11 +44,12 @@ func init() {
 		fmt.Println(err)
 		return
 	}
-	
+
 	s, err = discordgo.New("Bot " + BotToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
+	s.Identify.Intents |= discordgo.IntentGuildPresences
 }
 
 var (
@@ -126,8 +127,7 @@ var (
 				}
 				return
 			}
-			
-			
+
 			// Get the user ID and rating from the options
 			userID := i.ApplicationCommandData().Options[0].UserValue(s).ID
 			rating := i.ApplicationCommandData().Options[1].IntValue()
@@ -251,7 +251,7 @@ var (
 				})
 				return
 			}
-		
+
 			// Wilson score calculation function
 			weightedWilsonScore := func(wins, losses int) float64 {
 				n := wins + losses
@@ -264,20 +264,32 @@ var (
 				weightedScore := math.Sqrt(float64(n)) * ((phat + z*z/(2*float64(n)) - z*math.Sqrt((phat*(1-phat)+z*z/(4*float64(n)))/float64(n))) / (1 + z*z/float64(n)))
 				return weightedScore
 			}
-		
+
 			// Map to store Wilson scores for each player
 			wilsonScores := make(map[string]float64)
-		
+
 			// Calculate Wilson score for each player and store in the map
 			for _, r := range ratings {
 				wilsonScores[r.UserID] = weightedWilsonScore(r.Wins, r.Loses)
 			}
-		
+
 			// Sort the ratings by Wilson score
 			sort.Slice(ratings, func(i, j int) bool {
 				return wilsonScores[ratings[i].UserID] > wilsonScores[ratings[j].UserID]
 			})
-		
+
+			// get the discord status of the user
+			guild, err := s.State.Guild(i.GuildID)
+			if err != nil {
+				s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Cannot get the guild",
+					},
+				})
+				return
+			}
+
 			// Generate the list of users
 			fields := []*discordgo.MessageEmbedField{}
 			for _, r := range ratings {
@@ -285,13 +297,32 @@ var (
 				if r.Wins+r.Loses > 0 {
 					winrate = float64(r.Wins) / float64(r.Wins+r.Loses) * 100
 				}
+
+				// Get the user status
+				var status string
+				for _, p := range guild.Presences {
+					if p.User.ID == r.UserID {
+						status = string(p.Status)
+						break
+					}
+				}
+
+				statusEmoji := "🔴"
+				if status == "online" {
+					statusEmoji = "🟢"
+				} else if status == "idle" {
+					statusEmoji = "🟢"
+				} else if status == "dnd" {
+					statusEmoji = "🟢"
+				}
+
 				userField := &discordgo.MessageEmbedField{
-					Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%\nWilson Score: %.4f", r.UserID, r.Rating, r.Wins, r.Loses, winrate, wilsonScores[r.UserID]),
+					Value:  fmt.Sprintf("<@%s> %s\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%\nWilson Score: %.4f", r.UserID, statusEmoji, r.Rating, r.Wins, r.Loses, winrate, wilsonScores[r.UserID]),
 					Inline: true,
 				}
 				fields = append(fields, userField)
 			}
-		
+
 			// Send the list
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -635,10 +666,10 @@ var (
 			team1, team2 := parseTeams(i)
 
 			match := &matchData{
-				MatchID: Node.Generate().String(),
-				Team1: team1,
-				Team2: team2,
-				Winner: "",
+				MatchID:   Node.Generate().String(),
+				Team1:     team1,
+				Team2:     team2,
+				Winner:    "",
 				Timestamp: time.Now().Unix(),
 			}
 
@@ -723,7 +754,7 @@ var (
 					Content: "Something went wrong",
 				})
 			}
-			
+
 			// Move the team members
 			for _, userID := range team1 {
 				err = s.GuildMemberMove(guild.ID, userID, &team1ChannelID)
@@ -761,8 +792,7 @@ var (
 				}
 				return
 			}
-			
-			
+
 			matchID := parseMatchID(i)
 
 			// Load the matches from the file
@@ -884,7 +914,7 @@ var (
 				}
 				return
 			}
-			
+
 			matchID := parseMatchID(i)
 
 			// Load the matches from the file
@@ -970,7 +1000,6 @@ var (
 				return
 			}
 
-
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match finished"
@@ -1007,7 +1036,7 @@ var (
 				}
 				return
 			}
-			
+
 			matchID := parseMatchID(i)
 
 			// Load the matches from the file
@@ -1220,7 +1249,6 @@ func parseTeams(i *discordgo.InteractionCreate) ([]string, []string) {
 	return team1IDs, team2IDs
 }
 
-
 func parseMatchID(i *discordgo.InteractionCreate) string {
 	// Define a regex to match the match ID in the format MatchID: 123456789
 	re := regexp.MustCompile(`MatchID: (\d+)`)
@@ -1230,7 +1258,6 @@ func parseMatchID(i *discordgo.InteractionCreate) string {
 
 	return matchID
 }
-
 
 func generateTeams(users []*ratingData) ([]*ratingData, []*ratingData) {
 	n := len(users)
@@ -1288,27 +1315,27 @@ func abs(x int) int {
 }
 
 func isPrivilegedUser(s *discordgo.Session, i *discordgo.InteractionCreate) bool {
-    // Get the member who initiated the interaction
-    member, err := s.GuildMember(i.GuildID, i.Member.User.ID)
-    if err != nil {
-        // Handle error
-        return false
-    }
+	// Get the member who initiated the interaction
+	member, err := s.GuildMember(i.GuildID, i.Member.User.ID)
+	if err != nil {
+		// Handle error
+		return false
+	}
 
-    // Check if the member has the required role
-    for _, roleID := range member.Roles {
-        role, err := s.State.Role(i.GuildID, roleID)
-        if err != nil {
-            // Handle error
-            continue
-        }
+	// Check if the member has the required role
+	for _, roleID := range member.Roles {
+		role, err := s.State.Role(i.GuildID, roleID)
+		if err != nil {
+			// Handle error
+			continue
+		}
 
-        if role.Name == "Barback" {
-            return true
-        }
-    }
+		if role.Name == "Barback" {
+			return true
+		}
+	}
 
-    return false
+	return false
 }
 
 func main() {
