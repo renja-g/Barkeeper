@@ -1,0 +1,33 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Build images
+        run: docker compose build
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Stop existing services
+        run: docker compose down || true
+
+      - name: Start services
+        run: docker compose up -d
