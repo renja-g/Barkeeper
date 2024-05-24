@@ -21,9 +21,9 @@
   > [Reshuffle Teams]
   > 
   > If "Start Match" is pressed, the user will be automatically moved into their teams voice channels and the buttons change to:
-  > [Team 1 Wins]
-  > [Team 2 Wins]
-  > [Cancel Match]
+  > [Team 1 wins]
+  > [Team 2 wins]
+  > [Cancel match]
   >
   > When a match ends, the stats of all participants will be updated.
   <img width="318" alt="image" src="https://github.com/renja-g/Barkeeper/assets/76645494/b191ba3a-ba07-4897-9562-430c844e64db">
