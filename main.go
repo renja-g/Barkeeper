@@ -441,11 +441,11 @@ var (
 							Title: "Teams",
 							Fields: []*discordgo.MessageEmbedField{
 								{
-									Name:  fmt.Sprintf("Team 1 (%d)", team1Rating),
+									Name:  fmt.Sprintf("Blue (%d)", team1Rating),
 									Value: team1String,
 								},
 								{
-									Name:  fmt.Sprintf("Team 2 (%d)", team1Rating),
+									Name:  fmt.Sprintf("Red (%d)", team1Rating),
 									Value: team2String,
 								},
 							},
@@ -645,11 +645,11 @@ var (
 							Title: "Teams",
 							Fields: []*discordgo.MessageEmbedField{
 								{
-									Name:  fmt.Sprintf("Team 1 (%d)", team1Rating),
+									Name:  fmt.Sprintf("Blue (%d)", team1Rating),
 									Value: team1String,
 								},
 								{
-									Name:  fmt.Sprintf("Team 2 (%d)", team1Rating),
+									Name:  fmt.Sprintf("Red (%d)", team1Rating),
 									Value: team2String,
 								},
 							},
@@ -744,7 +744,7 @@ var (
 									Emoji: &discordgo.ComponentEmoji{
 										Name: "🏆",
 									},
-									Label: "Team 1 wins",
+									Label: "Blue wins",
 									Style: discordgo.SuccessButton,
 								},
 								discordgo.Button{
@@ -752,7 +752,7 @@ var (
 									Emoji: &discordgo.ComponentEmoji{
 										Name: "🏆",
 									},
-									Label: "Team 2 wins",
+									Label: "Red wins",
 									Style: discordgo.SuccessButton,
 								},
 								discordgo.Button{
@@ -773,7 +773,7 @@ var (
 			}
 
 			// Move the team members to the team voice channels
-			// Voice channel names must be "Team 1" and "Team 2"
+			// Voice channel names must be "Blue" and "Red"
 			guild, err := s.State.Guild(i.GuildID)
 			if err != nil {
 				err := s.InteractionRespond(i.Interaction, buildError("Cannot get the guild"))
@@ -787,9 +787,9 @@ var (
 			var team1ChannelID, team2ChannelID string
 			channels, _ := s.GuildChannels(guild.ID)
 			for _, c := range channels {
-				if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 1" {
+				if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Blue" {
 					team1ChannelID = c.ID
-				} else if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Team 2" {
+				} else if c.Type == discordgo.ChannelTypeGuildVoice && c.Name == "Red" {
 					team2ChannelID = c.ID
 				}
 			}
@@ -917,7 +917,7 @@ var (
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match finished"
-			oldEmbed.Description = "Team 1 wins"
+			oldEmbed.Description = "Blue wins"
 			oldEmbed.Color = 0x00ff00
 
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -1026,7 +1026,7 @@ var (
 			// Edit the message
 			oldEmbed := i.Message.Embeds[0]
 			oldEmbed.Title = "Match finished"
-			oldEmbed.Description = "Team 2 wins"
+			oldEmbed.Description = "Red wins"
 			oldEmbed.Color = 0x00ff00
 
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
