@@ -57,6 +57,7 @@ func main() {
 	h.Command("/version", commands.VersionHandler(b))
 
 	h.Component("test_button", components.TestComponent)
+	h.Component("reshuffle_button", components.ReshuffleComponent)
 
 	b.SetupBot(h, bot.NewListenerFunc(b.OnReady), handlers.MessageHandler(b))
 

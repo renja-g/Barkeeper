@@ -56,17 +56,17 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 
 	// Check if there are exactly 10 users in the voice channel
 	/*
-	if len(ids) != 10 {
-		embed := discord.NewEmbedBuilder().
-			SetTitle("Invalid team").
-			SetDescriptionf("The voice channel you are in does not have exactly 10 members.").
-			SetColor(0xff0000).
-			Build()
+		if len(ids) != 10 {
+			embed := discord.NewEmbedBuilder().
+				SetTitle("Invalid team").
+				SetDescriptionf("The voice channel you are in does not have exactly 10 members.").
+				SetColor(0xff0000).
+				Build()
 
-		return e.CreateMessage(discord.MessageCreate{
-			Embeds: []discord.Embed{embed},
-		})
-	}
+			return e.CreateMessage(discord.MessageCreate{
+				Embeds: []discord.Embed{embed},
+			})
+		}
 	*/
 
 	// Check if all members have a rating
@@ -132,7 +132,9 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 		AddField(fmt.Sprintf("Red (%d)", team2Rating), utils.FormatTeam(team2), false).
 		Build()
 
-	return e.CreateMessage(discord.MessageCreate{
-		Embeds: []discord.Embed{embed},
-	})
+	return e.CreateMessage(discord.NewMessageCreateBuilder().
+		SetEmbeds(embed).
+		AddActionRow(discord.NewPrimaryButton("Reshuffle", "reshuffle_button")).
+		Build(),
+	)
 }

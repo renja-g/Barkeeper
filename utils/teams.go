@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"regexp"
 
+	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake/v2"
 	"github.com/renja-g/Barkeeper/constants"
 )
 
 func GenerateTeams(users []*constants.Rating) ([]*constants.Rating, []*constants.Rating) {
 	n := len(users)
+	if n%2 != 0 {
+		return nil, nil
+	}
 	halfSize := n / 2
 
 	var bestTeams [][2][]*constants.Rating
@@ -49,6 +55,11 @@ func GenerateTeams(users []*constants.Rating) ([]*constants.Rating, []*constants
 		}
 	}
 
+	// Check if there are any best teams found
+	if len(bestTeams) == 0 {
+		return nil, nil
+	}
+
 	// Randomly select one of the best teams
 	selectedIndex := rand.Intn(len(bestTeams))
 	bestTeam1, bestTeam2 := bestTeams[selectedIndex][0], bestTeams[selectedIndex][1]
@@ -73,6 +84,31 @@ func CalculateTeamRating(team []*constants.Rating) int {
 		rating += user.Rating
 	}
 	return rating
+}
+
+func ParseTeamMessage(message discord.Message) ([]*snowflake.ID, []*snowflake.ID) {
+	var team1, team2 []*snowflake.ID
+	re := regexp.MustCompile(`<@(\d+)> \d+`)
+	team1Matches := re.FindAllString(message.Embeds[0].Fields[0].Value, -1)
+	team2Matches := re.FindAllString(message.Embeds[0].Fields[1].Value, -1)
+
+	for _, match := range team1Matches {
+		id, err := snowflake.Parse(match[2:20])
+		if err != nil {
+			continue
+		}
+		team1 = append(team1, &id)
+	}
+
+	for _, match := range team2Matches {
+		id, err := snowflake.Parse(match[2:20])
+		if err != nil {
+			continue
+		}
+		team2 = append(team2, &id)
+	}
+
+	return team1, team2
 }
 
 func abs(x int) int {
