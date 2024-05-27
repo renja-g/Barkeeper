@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/disgoorg/disgo/discord"
@@ -54,6 +55,7 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	})
 
 	// Check if there are exactly 10 users in the voice channel
+	/*
 	if len(ids) != 10 {
 		embed := discord.NewEmbedBuilder().
 			SetTitle("Invalid team").
@@ -65,6 +67,7 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 			Embeds: []discord.Embed{embed},
 		})
 	}
+	*/
 
 	// Check if all members have a rating
 	ratings, err := utils.GetRatings()
@@ -124,12 +127,12 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	// Create the embed
 	embed := discord.NewEmbedBuilder().
 		SetTitle("Teams").
-		SetDescriptionf("Team 1 (%d): %s\nTeam 2 (%d): %s", utils.FormatTeam(team1), team1Rating, utils.FormatTeam(team2), team2Rating).
 		SetColor(0x3498db).
+		AddField(fmt.Sprintf("Blue (%d)", team1Rating), utils.FormatTeam(team1), false).
+		AddField(fmt.Sprintf("Red (%d)", team2Rating), utils.FormatTeam(team2), false).
 		Build()
 
 	return e.CreateMessage(discord.MessageCreate{
 		Embeds: []discord.Embed{embed},
 	})
-
 }
