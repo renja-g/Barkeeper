@@ -59,6 +59,8 @@ func main() {
 	h.Component("test_button", components.TestComponent)
 	h.Component("reshuffle_button", components.ReshuffleComponent)
 	h.Component("start_match_button", components.StartMatchComponent)
+	h.Component("team1_wins_button", components.SetWinnerComponent)
+	h.Component("team2_wins_button", components.SetWinnerComponent)
 
 	b.SetupBot(h, bot.NewListenerFunc(b.OnReady), handlers.MessageHandler(b))
 

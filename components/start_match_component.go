@@ -1,6 +1,8 @@
 package components
 
 import (
+	"time"
+
 	"github.com/bwmarrin/snowflake"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
@@ -32,6 +34,7 @@ func StartMatchComponent(e *handler.ComponentEvent) error {
         MatchID: Node.Generate(),
         Team1:   team1,
         Team2:   team2,
+		Timestamp: time.Now().Unix(),
     }
 
 	// Save the match to the matches.json file
@@ -55,8 +58,8 @@ func StartMatchComponent(e *handler.ComponentEvent) error {
 	return e.UpdateMessage(discord.NewMessageUpdateBuilder().
 		SetEmbeds(embed).
 		AddActionRow(
-			discord.NewPrimaryButton("Team 1 won", "team1_won_button"),
-			discord.NewPrimaryButton("Team 2 won", "team2_won_button"),
+			discord.NewPrimaryButton("Team Blue wins", "team1_wins_button"),
+			discord.NewPrimaryButton("Team Red wins", "team2_wins_button"),
 			discord.NewDangerButton("Cancel match", "cancel_match_button"),
 		).
 		Build(),

@@ -6,8 +6,10 @@ import (
 	"math/rand"
 	"regexp"
 
+	"github.com/bwmarrin/snowflake"
 	"github.com/disgoorg/disgo/discord"
-	"github.com/disgoorg/snowflake/v2"
+	dSnowflake "github.com/disgoorg/snowflake/v2"
+
 	"github.com/renja-g/Barkeeper/constants"
 )
 
@@ -86,14 +88,14 @@ func CalculateTeamRating(team []*constants.Rating) int {
 	return rating
 }
 
-func ParseTeamMessage(message discord.Message) ([]*snowflake.ID, []*snowflake.ID) {
-	var team1, team2 []*snowflake.ID
+func ParseTeamMessage(message discord.Message) ([]*dSnowflake.ID, []*dSnowflake.ID) {
+	var team1, team2 []*dSnowflake.ID
 	re := regexp.MustCompile(`<@(\d+)> \d+`)
 	team1Matches := re.FindAllString(message.Embeds[0].Fields[0].Value, -1)
 	team2Matches := re.FindAllString(message.Embeds[0].Fields[1].Value, -1)
 
 	for _, match := range team1Matches {
-		id, err := snowflake.Parse(match[2:20])
+		id, err := dSnowflake.Parse(match[2:20])
 		if err != nil {
 			continue
 		}
@@ -101,7 +103,7 @@ func ParseTeamMessage(message discord.Message) ([]*snowflake.ID, []*snowflake.ID
 	}
 
 	for _, match := range team2Matches {
-		id, err := snowflake.Parse(match[2:20])
+		id, err := dSnowflake.Parse(match[2:20])
 		if err != nil {
 			continue
 		}
@@ -109,6 +111,16 @@ func ParseTeamMessage(message discord.Message) ([]*snowflake.ID, []*snowflake.ID
 	}
 
 	return team1, team2
+}
+
+func ParseMatchID(message discord.Message) (*snowflake.ID, error) {
+	matchID := message.Embeds[0].Footer.Text[9:28]
+	id, err := snowflake.ParseString(matchID)
+	
+	if err != nil {
+		return nil, err
+	}
+	return &id, nil
 }
 
 func abs(x int) int {
