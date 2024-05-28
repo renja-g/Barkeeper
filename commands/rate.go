@@ -40,7 +40,7 @@ func RateHandler(e *handler.CommandEvent) error {
 	// Check if the user has already been rated
 	found := false
 	for i, rating := range ratings {
-		if rating.UserID == e.SlashCommandInteractionData().User("user").ID.String() {
+		if rating.UserID == e.SlashCommandInteractionData().User("user").ID {
 			ratings[i].Rating = e.SlashCommandInteractionData().Int("rating")
 			err := utils.SaveRatings(ratings)
 			if err != nil {
@@ -54,7 +54,7 @@ func RateHandler(e *handler.CommandEvent) error {
 	// If the user has not been rated yet, add a new rating
 	if !found {
 		ratings = append(ratings, constants.Rating{
-			UserID: e.SlashCommandInteractionData().User("user").ID.String(),
+			UserID: e.SlashCommandInteractionData().User("user").ID,
 			Rating: e.SlashCommandInteractionData().Int("rating"),
 			// Wins and losses are set to 0 by default
 		})

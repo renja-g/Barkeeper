@@ -21,7 +21,7 @@ func ReshuffleComponent(e *handler.ComponentEvent) error {
 
 	for _, rating := range ratings {
 		for _, id := range participantIds {
-			if rating.UserID == id.String() {
+			if rating.UserID == *id {
 				ratingCopy := rating
 				participants = append(participants, &ratingCopy)
 				break

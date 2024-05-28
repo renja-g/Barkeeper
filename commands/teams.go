@@ -79,7 +79,7 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	for _, id := range ids {
 		found := false
 		for _, rating := range ratings {
-			if rating.UserID == id.String() {
+			if rating.UserID == id {
 				found = true
 				break
 			}
@@ -113,7 +113,7 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	var memberRatings []*constants.Rating
 	for _, id := range ids {
 		for _, rating := range ratings {
-			if rating.UserID == id.String() {
+			if rating.UserID == id {
 				memberRatings = append(memberRatings, &rating)
 				break
 			}
@@ -134,7 +134,9 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 
 	return e.CreateMessage(discord.NewMessageCreateBuilder().
 		SetEmbeds(embed).
-		AddActionRow(discord.NewPrimaryButton("Reshuffle", "reshuffle_button")).
+		AddActionRow(
+			discord.NewPrimaryButton("Start Match", "start_match_button"),
+			discord.NewPrimaryButton("Reshuffle", "reshuffle_button")).
 		Build(),
 	)
 }

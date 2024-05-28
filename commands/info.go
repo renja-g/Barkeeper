@@ -28,13 +28,13 @@ func InfoHandler(e *handler.CommandEvent) error {
 	// Check if the user has a rating
 	userRating := constants.Rating{}
 	for _, rating := range ratings {
-		if rating.UserID == e.SlashCommandInteractionData().User("user").ID.String() {
+		if rating.UserID == e.SlashCommandInteractionData().User("user").ID {
 			userRating = rating
 			break
 		}
 	}
 
-	if userRating.UserID == "" {
+	if userRating.UserID == 0 {
 		embed := discord.NewEmbedBuilder().
 			SetTitle("User not found").
 			SetDescriptionf("User %s not found.", e.SlashCommandInteractionData().User("user").Mention()).

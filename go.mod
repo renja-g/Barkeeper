@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/sasha-s/go-csync v0.0.0-20210812194225-61421b77c44b // indirect
 	golang.org/x/crypto v0.6.0 // indirect
