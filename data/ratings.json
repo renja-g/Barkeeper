@@ -2,31 +2,115 @@
     {
         "userID": "319459741287972867",
         "rating": 5,
-        "wins": 0,
-        "losses": 0
+        "wins": 6,
+        "losses": 2
     },
     {
         "userID": "389130156146425856",
         "rating": 6,
-        "wins": 0,
-        "losses": 0
+        "wins": 5,
+        "losses": 3
     },
     {
-        "userID": "1041344858008342589",
-        "rating": 9,
-        "wins": 0,
-        "losses": 0
+        "userID": "657936468332904461",
+        "rating": 7,
+        "wins": 5,
+        "losses": 3
     },
     {
-        "userID": "309745753591382019",
-        "rating": 6,
+        "userID": "809402221568458840",
+        "rating": 5,
         "wins": 0,
         "losses": 0
     },
     {
         "userID": "246770217064202240",
+        "rating": 9,
+        "wins": 4,
+        "losses": 4
+    },
+    {
+        "userID": "401448318602969118",
+        "rating": 6,
+        "wins": 1,
+        "losses": 1
+    },
+    {
+        "userID": "1041344858008342589",
+        "rating": 9,
+        "wins": 4,
+        "losses": 4
+    },
+    {
+        "userID": "693227659777278012",
         "rating": 5,
         "wins": 0,
+        "losses": 1
+    },
+    {
+        "userID": "208969370859339779",
+        "rating": 7,
+        "wins": 2,
+        "losses": 6
+    },
+    {
+        "userID": "545341717029847050",
+        "rating": 7,
+        "wins": 2,
+        "losses": 3
+    },
+    {
+        "userID": "363607955989331971",
+        "rating": 5,
+        "wins": 1,
         "losses": 0
+    },
+    {
+        "userID": "879378292308869170",
+        "rating": 6,
+        "wins": 5,
+        "losses": 3
+    },
+    {
+        "userID": "301464399212707840",
+        "rating": 5,
+        "wins": 2,
+        "losses": 3
+    },
+    {
+        "userID": "944773929623502851",
+        "rating": 4,
+        "wins": 1,
+        "losses": 2
+    },
+    {
+        "userID": "282035605008023552",
+        "rating": 4,
+        "wins": 0,
+        "losses": 1
+    },
+    {
+        "userID": "333178799556657155",
+        "rating": 5,
+        "wins": 1,
+        "losses": 0
+    },
+    {
+        "userID": "665658422556885022",
+        "rating": 4,
+        "wins": 0,
+        "losses": 1
+    },
+    {
+        "userID": "587686927776350229",
+        "rating": 6,
+        "wins": 1,
+        "losses": 2
+    },
+    {
+        "userID": "235789013829681156",
+        "rating": 4,
+        "wins": 0,
+        "losses": 1
     }
 ]

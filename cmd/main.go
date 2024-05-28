@@ -8,14 +8,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/log"
 
 	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/commands"
 	"github.com/renja-g/Barkeeper/components"
-	"github.com/renja-g/Barkeeper/handlers"
 )
 
 var (
@@ -62,8 +60,6 @@ func main() {
 	h.Component("team1_wins_button", components.SetWinnerComponent)
 	h.Component("team2_wins_button", components.SetWinnerComponent)
 	h.Component("cancel_match_button", components.CancelMatchComponent)
-
-	b.SetupBot(h, bot.NewListenerFunc(b.OnReady), handlers.MessageHandler(b))
 
 	if *shouldSyncCommands {
 		if cfg.DevMode {
