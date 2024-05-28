@@ -55,6 +55,8 @@ func main() {
 
 	h.Command("/leaderboard", commands.LeaderboardHandler)
 
+	h.Command("/history", commands.HistoryHandler)
+
 	h.Command("/version", commands.VersionHandler(b))
 
 	h.Component("test_button", components.TestComponent)
