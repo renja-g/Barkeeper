@@ -53,6 +53,8 @@ func main() {
 		return commands.TeamsHandler(e, b)
 	})
 
+	h.Command("/leaderboard", commands.LeaderboardHandler)
+
 	h.Command("/version", commands.VersionHandler(b))
 
 	h.Component("test_button", components.TestComponent)

@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"regexp"
+	"sort"
 
 	"github.com/bwmarrin/snowflake"
 	"github.com/disgoorg/disgo/discord"
@@ -121,6 +122,25 @@ func ParseMatchID(message discord.Message) (*snowflake.ID, error) {
 		return nil, err
 	}
 	return &id, nil
+}
+
+func GetLeaderboard(ratings []constants.Rating) []constants.Rating {
+	sortRatingsByWinRate(ratings)
+
+	return ratings
+}
+
+func sortRatingsByWinRate(ratings []constants.Rating) {
+	sort.Slice(ratings, func(i, j int) bool {
+		winRate1, winRate2 := 0.0, 0.0
+		if ratings[i].Wins+ratings[i].Losses != 0 {
+			winRate1 = float64(ratings[i].Wins) / float64(ratings[i].Wins+ratings[i].Losses)
+		}
+		if ratings[j].Wins+ratings[j].Losses != 0 {
+			winRate2 = float64(ratings[j].Wins) / float64(ratings[j].Wins+ratings[j].Losses)
+		}
+		return winRate1 > winRate2
+	})
 }
 
 func abs(x int) int {
