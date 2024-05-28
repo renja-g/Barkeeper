@@ -46,22 +46,22 @@ func GetRatings() ([]constants.Rating, error) {
 }
 
 func SaveMatches(matches []constants.Match) error {
-	// Open a new file for writing only
-	file, err := os.OpenFile("data/matches.json", os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+    // Open a new file for writing only and truncate it
+    file, err := os.OpenFile("data/matches.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+    if err != nil {
+        return err
+    }
+    defer file.Close()
 
-	// Encode the matches to the JSON format and write it to the file
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "    ")
-	err = encoder.Encode(matches)
-	if err != nil {
-		return err
-	}
+    // Encode the matches to the JSON format and write it to the file
+    encoder := json.NewEncoder(file)
+    encoder.SetIndent("", "    ")
+    err = encoder.Encode(matches)
+    if err != nil {
+        return err
+    }
 
-	return nil
+    return nil
 }
 
 func GetMatches() ([]constants.Match, error) {

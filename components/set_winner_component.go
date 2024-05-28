@@ -81,6 +81,7 @@ func SetWinnerComponent(e *handler.ComponentEvent) error {
 	embed := e.ComponentInteraction.Message.Embeds[0]
 	embed.Title = "Match Finished"
 	embed.Description = winnnerTeam + " wins the match! 🎉"
+	embed.Color = 0x00ff00
 
 	return e.UpdateMessage(discord.NewMessageUpdateBuilder().
 		SetEmbeds(embed).
