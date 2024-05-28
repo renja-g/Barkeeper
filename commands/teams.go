@@ -135,7 +135,7 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	return e.CreateMessage(discord.NewMessageCreateBuilder().
 		SetEmbeds(embed).
 		AddActionRow(
-			discord.NewPrimaryButton("Start Match", "start_match_button"),
+			discord.NewPrimaryButton("Start match", "start_match_button"),
 			discord.NewPrimaryButton("Reshuffle", "reshuffle_button")).
 		Build(),
 	)

@@ -22,5 +22,11 @@
         "rating": 6,
         "wins": 0,
         "losses": 0
+    },
+    {
+        "userID": "246770217064202240",
+        "rating": 5,
+        "wins": 0,
+        "losses": 0
     }
 ]
