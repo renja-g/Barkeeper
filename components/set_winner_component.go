@@ -72,7 +72,6 @@ func SetWinnerComponent(e *handler.ComponentEvent) error {
 		return err
 	}
 
-
 	// Update the message with the winner
 	winnnerTeam := "Blue"
 	if winner == "team2" {
