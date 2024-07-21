@@ -1,9 +1,12 @@
 services:
   bot:
-    image: hcr.io/disgoorg/disgo-butler/bot
+    build:
+      context: .
+      dockerfile: cmd/Dockerfile
     restart: unless-stopped
     volumes:
       - ./config.json:/opt/bot/config.json
+      - ./data:/opt/bot/data
     command: --sync-commands=true
     networks:
       - bot

@@ -20,6 +20,9 @@ func LeaderboardHandler(e *handler.CommandEvent) error {
 	}
 
 	ratings = utils.GetLeaderboard(ratings)
+	if len(ratings) > 20 {
+		ratings = ratings[:20]
+	}
 
 	fields := make([]discord.EmbedField, len(ratings))
 	inline := true
@@ -40,6 +43,7 @@ func LeaderboardHandler(e *handler.CommandEvent) error {
 		SetTitle("Leaderboard").
 		SetColor(0x3498db).
 		SetFields(fields...).
+		SetFooterText("Top 20 players").
 		Build()
 
 	return e.CreateMessage(discord.MessageCreate{

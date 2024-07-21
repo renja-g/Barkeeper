@@ -21,6 +21,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM alpine
 
+WORKDIR /opt/bot
+
 COPY --from=build /build/bot /bin/bot
 
 ENTRYPOINT ["/bin/bot"]
