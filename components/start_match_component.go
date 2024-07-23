@@ -48,6 +48,31 @@ func StartMatchComponent(e *handler.ComponentEvent) error {
 		return err
 	}
 
+	// Move member into their respective voice channels
+	// TODO: Move the ids into the conf
+	var blueChannelID, redChannelID dSnowflake.ID
+	blueChannelID = 1242566191218954291
+	redChannelID = 1242566236290814052
+
+	for _, memberID := range team1 {
+		_, err := e.Client().Rest().UpdateMember(*e.GuildID(), memberID, discord.MemberUpdate{
+			ChannelID: &blueChannelID,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, memberID := range team2 {
+		_, err := e.Client().Rest().UpdateMember(*e.GuildID(), memberID, discord.MemberUpdate{
+			ChannelID: &redChannelID,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+
 	// Update the message with the match ID
 	embed := e.Message.Embeds[0]
 	embed.Title = "Match started"
