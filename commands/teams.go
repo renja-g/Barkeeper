@@ -55,7 +55,6 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	})
 
 	// Check if there are exactly 10 users in the voice channel
-	/*
 		if len(ids) != 10 {
 			embed := discord.NewEmbedBuilder().
 				SetTitle("Invalid team").
@@ -67,7 +66,6 @@ func TeamsHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 				Embeds: []discord.Embed{embed},
 			})
 		}
-	*/
 
 	// Check if all members have a rating
 	ratings, err := utils.GetRatings()
