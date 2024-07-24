@@ -41,23 +41,14 @@ func main() {
 	b := dbot.New(logger, version, *cfg)
 
 	h := handler.New()
-	h.Command("/test", commands.TestHandler)
-	h.Autocomplete("/test", commands.TestAutocompleteHandler)
-
 	h.Command("/rate", commands.RateHandler)
 	h.Autocomplete("/rate", commands.RateAutocompleteHandler)
-
 	h.Command("/info", commands.InfoHandler)
-
 	h.Command("/teams", func(e *handler.CommandEvent) error {
 		return commands.TeamsHandler(e, b)
 	})
-
 	h.Command("/leaderboard", commands.LeaderboardHandler)
-
 	h.Command("/history", commands.HistoryHandler)
-
-	h.Command("/version", commands.VersionHandler(b))
 
 	h.Component("test_button", components.TestComponent)
 	h.Component("reshuffle_button", components.ReshuffleComponent)
