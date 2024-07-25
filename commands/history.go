@@ -5,6 +5,9 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
+	"github.com/disgoorg/paginator"
+	dbot "github.com/renja-g/Barkeeper"
+	"github.com/renja-g/Barkeeper/constants"
 	"github.com/renja-g/Barkeeper/utils"
 )
 
@@ -13,23 +16,55 @@ var history = discord.SlashCommandCreate{
 	Description: "Show the history of all matches.",
 }
 
-func HistoryHandler(e *handler.CommandEvent) error {
+func HistoryHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	matches, err := utils.GetMatches()
 	if err != nil {
 		return err
 	}
 
+	// reverse the matches so the most recent match is shown first
+	for i, j := 0, len(matches)-1; i < j; i, j = i+1, j-1 {
+		matches[i], matches[j] = matches[j], matches[i]
+	}
 
-	fields := make([]discord.EmbedField, len(matches))
-	inline := true
-	for i, m := range matches {
+	const maxFieldsPerPage = 6
+	var pages []*discord.EmbedBuilder
+
+	for i := 0; i < len(matches); i += maxFieldsPerPage {
+		end := i + maxFieldsPerPage
+		if end > len(matches) {
+			end = len(matches)
+		}
+
+		pageMatches := matches[i:end]
+		embed := createHistoryEmbed(pageMatches)
+		pages = append(pages, embed)
+	}
+
+	return b.Paginator.Create(e.Respond, paginator.Pages{
+		ID: e.ID().String(),
+		PageFunc: func(page int, embed *discord.EmbedBuilder) {
+			*embed = *pages[page]
+			embed.SetFooter(fmt.Sprintf("Page %d of %d", page+1, len(pages)), "")
+		},
+		Pages:      len(pages),
+		ExpireMode: paginator.ExpireModeAfterLastUsage,
+	}, false)
+}
+
+func createHistoryEmbed(matches []constants.Match) *discord.EmbedBuilder {
+	embed := discord.NewEmbedBuilder().
+		SetTitle("Match History").
+		SetColor(0x3498db)
+
+	for _, m := range matches {
 		if m.Winner == "" {
 			continue
 		}
-		
-		winner := "Blue"
+
+		winner := ":blue_square:"
 		if m.Winner == "team2" {
-			winner = "Red"
+			winner = ":red_square:"
 		}
 
 		team1String := ""
@@ -42,20 +77,11 @@ func HistoryHandler(e *handler.CommandEvent) error {
 			team2String += fmt.Sprintf("<@%s>\n", id)
 		}
 
-		fields[i] = discord.EmbedField{
-			Name:   fmt.Sprintf("Team **%s** won:", winner),
-			Value:  fmt.Sprintf("Blue\n%s\nRed\n%s\n<t:%d:R>", team1String, team2String, m.Timestamp),
-			Inline: &inline,
-		}
+		fieldName := fmt.Sprintf("Winner: **%s**", winner)
+		fieldValue := fmt.Sprintf("Blue\n%s\nRed\n%s\n<t:%d:R>", team1String, team2String, m.Timestamp)
+
+		embed.AddField(fieldName, fieldValue, true)
 	}
 
-	embed := discord.NewEmbedBuilder().
-		SetTitle("Leaderboard").
-		SetColor(0x3498db).
-		SetFields(fields...).
-		Build()
-
-	return e.CreateMessage(discord.MessageCreate{
-		Embeds: []discord.Embed{embed},
-	})
+	return embed
 }

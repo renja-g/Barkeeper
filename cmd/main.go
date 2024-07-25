@@ -55,7 +55,9 @@ func main() {
 		return commands.TeamsHandler(e, b)
 	})
 	h.Command("/leaderboard", commands.LeaderboardHandler)
-	h.Command("/history", commands.HistoryHandler)
+	h.Command("/history", func(e *handler.CommandEvent) error {
+		return commands.HistoryHandler(e, b)
+	})
 	h.Command("/list", func(e *handler.CommandEvent) error {
 		return commands.ListHandler(e, b)
 	})
