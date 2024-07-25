@@ -2,10 +2,10 @@ package dbot
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 
 	"github.com/disgoorg/json"
-	"github.com/disgoorg/log"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -37,6 +37,6 @@ func LoadConfig() (*Config, error) {
 type Config struct {
 	DevMode    bool         `json:"dev_mode"`
 	DevGuildID snowflake.ID `json:"dev_guild_id"`
-	LogLevel   log.Level    `json:"log_level"`
+	LogLevel   slog.Level    `json:"log_level"`
 	Token      string       `json:"token"`
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/handler"
-	"github.com/disgoorg/log"
 
 	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/commands"
@@ -33,10 +33,17 @@ func main() {
 		panic("failed to load config: " + err.Error())
 	}
 
-	logger := log.New(log.Ldate | log.Ltime | log.Lshortfile)
-	logger.SetLevel(cfg.LogLevel)
-	logger.Infof("Starting bot version: %s", version)
-	logger.Infof("Syncing commands? %t", *shouldSyncCommands)
+	logLevel := slog.LevelInfo
+	if cfg.LogLevel != 0 {
+		logLevel = slog.Level(cfg.LogLevel)
+	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: logLevel,
+	}))
+
+	logger.Info("Starting bot", "version", version)
+	logger.Info("Syncing commands?", "value", *shouldSyncCommands)
 
 	b := dbot.New(logger, version, *cfg)
 
@@ -49,13 +56,15 @@ func main() {
 	})
 	h.Command("/leaderboard", commands.LeaderboardHandler)
 	h.Command("/history", commands.HistoryHandler)
+	h.Command("/list", func(e *handler.CommandEvent) error {
+		return commands.ListHandler(e, b)
+	})
 
-	h.Component("test_button", components.TestComponent)
-	h.Component("reshuffle_button", components.ReshuffleComponent)
-	h.Component("start_match_button", components.StartMatchComponent)
-	h.Component("team1_wins_button", components.SetWinnerComponent)
-	h.Component("team2_wins_button", components.SetWinnerComponent)
-	h.Component("cancel_match_button", components.CancelMatchComponent)
+	h.Component("/reshuffle_button", components.ReshuffleComponent)
+	h.Component("/start_match_button", components.StartMatchComponent)
+	h.Component("/team1_wins_button", components.SetWinnerComponent)
+	h.Component("/team2_wins_button", components.SetWinnerComponent)
+	h.Component("/cancel_match_button", components.CancelMatchComponent)
 
 	b.SetupBot(h, bot.NewListenerFunc(b.OnReady))
 
@@ -68,20 +77,20 @@ func main() {
 			_, err = b.Client.Rest().SetGlobalCommands(b.Client.ApplicationID(), commands.Commands)
 		}
 		if err != nil {
-			logger.Errorf("failed to sync commands: %s", err.Error())
+			logger.Error("Failed to sync commands", "error", err)
 		}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err = b.Client.OpenGateway(ctx); err != nil {
-		b.Logger.Errorf("Failed to connect to gateway: %s", err)
+		logger.Error("Failed to connect to gateway", "error", err)
 	}
 	defer b.Client.Close(context.TODO())
 
-	b.Logger.Info("Bot is running. Press CTRL-C to exit.")
+	logger.Info("Bot is running. Press CTRL-C to exit.")
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-s
-	b.Logger.Info("Shutting down...")
+	logger.Info("Shutting down...")
 }

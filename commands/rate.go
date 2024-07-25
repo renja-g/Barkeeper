@@ -71,7 +71,7 @@ func RateHandler(e *handler.CommandEvent) error {
 }
 
 func RateAutocompleteHandler(e *handler.AutocompleteEvent) error {
-	return e.Result([]discord.AutocompleteChoice{
+	return e.AutocompleteResult([]discord.AutocompleteChoice{
 		discord.AutocompleteChoiceInt{
 			Name:  "1",
 			Value: 1,

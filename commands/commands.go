@@ -8,4 +8,5 @@ var Commands = []discord.ApplicationCommandCreate{
 	teams,
 	leaderboard,
 	history,
+	list,
 }
