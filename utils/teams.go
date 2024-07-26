@@ -124,13 +124,7 @@ func ParseMatchID(message discord.Message) (*snowflake.ID, error) {
 	return &id, nil
 }
 
-func GetLeaderboard(ratings []constants.Rating) []constants.Rating {
-	sortRatingsByWinRate(ratings)
-
-	return ratings
-}
-
-func sortRatingsByWinRate(ratings []constants.Rating) {
+func SortRatingsByWinRate(ratings []constants.Rating) []constants.Rating{
 	sort.Slice(ratings, func(i, j int) bool {
 		winRate1, winRate2 := 0.0, 0.0
 		if ratings[i].Wins+ratings[i].Losses != 0 {
@@ -141,6 +135,8 @@ func sortRatingsByWinRate(ratings []constants.Rating) {
 		}
 		return winRate1 > winRate2
 	})
+
+	return ratings
 }
 
 func abs(x int) int {
