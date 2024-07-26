@@ -25,49 +25,51 @@ var rate = discord.SlashCommandCreate{
 	},
 }
 
-func RateHandler(e *handler.CommandEvent) error {
-	embed := discord.NewEmbedBuilder().
-		SetTitle("Rating set").
-		SetDescriptionf("Rating for %s set to %d", e.SlashCommandInteractionData().User("user").Mention(), e.SlashCommandInteractionData().Int("rating")).
-		SetColor(0x00ff00).
-		Build()
+func RateHandler() handler.SlashCommandHandler {
+    return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+		embed := discord.NewEmbedBuilder().
+			SetTitle("Rating set").
+			SetDescriptionf("Rating for %s set to %d", e.SlashCommandInteractionData().User("user").Mention(), e.SlashCommandInteractionData().Int("rating")).
+			SetColor(0x00ff00).
+			Build()
 
-	ratings, err := utils.GetRatings()
-	if err != nil {
-		return err
-	}
-
-	// Check if the user has already been rated
-	found := false
-	for i, rating := range ratings {
-		if rating.UserID == e.SlashCommandInteractionData().User("user").ID {
-			ratings[i].Rating = e.SlashCommandInteractionData().Int("rating")
-			err := utils.SaveRatings(ratings)
-			if err != nil {
-				return err
-			}
-			found = true
-			break
+		ratings, err := utils.GetRatings()
+		if err != nil {
+			return err
 		}
-	}
 
-	// If the user has not been rated yet, add a new rating
-	if !found {
-		ratings = append(ratings, constants.Rating{
-			UserID: e.SlashCommandInteractionData().User("user").ID,
-			Rating: e.SlashCommandInteractionData().Int("rating"),
-			// Wins and losses are set to 0 by default
+		// Check if the user has already been rated
+		found := false
+		for i, rating := range ratings {
+			if rating.UserID == e.SlashCommandInteractionData().User("user").ID {
+				ratings[i].Rating = e.SlashCommandInteractionData().Int("rating")
+				err := utils.SaveRatings(ratings)
+				if err != nil {
+					return err
+				}
+				found = true
+				break
+			}
+		}
+
+		// If the user has not been rated yet, add a new rating
+		if !found {
+			ratings = append(ratings, constants.Rating{
+				UserID: e.SlashCommandInteractionData().User("user").ID,
+				Rating: e.SlashCommandInteractionData().Int("rating"),
+				// Wins and losses are set to 0 by default
+			})
+		}
+
+		err = utils.SaveRatings(ratings)
+		if err != nil {
+			return err
+		}
+
+		return e.CreateMessage(discord.MessageCreate{
+			Embeds: []discord.Embed{embed},
 		})
 	}
-
-	err = utils.SaveRatings(ratings)
-	if err != nil {
-		return err
-	}
-
-	return e.CreateMessage(discord.MessageCreate{
-		Embeds: []discord.Embed{embed},
-	})
 }
 
 func RateAutocompleteHandler(e *handler.AutocompleteEvent) error {

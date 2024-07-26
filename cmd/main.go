@@ -48,19 +48,13 @@ func main() {
 	b := dbot.New(logger, version, *cfg)
 
 	h := handler.New()
-	h.Command("/rate", commands.RateHandler)
+	h.SlashCommand("/rate", commands.RateHandler())
 	h.Autocomplete("/rate", commands.RateAutocompleteHandler)
-	h.Command("/info", commands.InfoHandler)
-	h.Command("/teams", func(e *handler.CommandEvent) error {
-		return commands.TeamsHandler(e, b)
-	})
-	h.Command("/leaderboard", commands.LeaderboardHandler)
-	h.Command("/history", func(e *handler.CommandEvent) error {
-		return commands.HistoryHandler(e, b)
-	})
-	h.Command("/list", func(e *handler.CommandEvent) error {
-		return commands.ListHandler(e, b)
-	})
+	h.SlashCommand("/info", commands.InfoHandler())
+	h.SlashCommand("/teams", commands.TeamsHandler(b))
+	h.SlashCommand("/leaderboard", commands.LeaderboardHandler())
+	h.SlashCommand("/history", commands.HistoryHandler(b))
+	h.SlashCommand("/list", commands.ListHandler(b))
 
 	h.Component("/reshuffle_button", components.ReshuffleComponent)
 	h.Component("/start_match_button", components.StartMatchComponent)

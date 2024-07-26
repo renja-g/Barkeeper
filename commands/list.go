@@ -28,71 +28,73 @@ var list = discord.SlashCommandCreate{
     },
 }
 
-func ListHandler(e *handler.CommandEvent, b *dbot.Bot) error {
-    ratings, err := utils.GetRatings()
-    if err != nil {
-        return err
-    }
-
-    guildID := e.GuildID()
-    filter := e.SlashCommandInteractionData().String("filter")
-
-    const maxEmbedLength = 2000
-    const maxFieldsPerEmbed = 21
-    var pages []*discord.EmbedBuilder
-    
-    pageUsers := make([]constants.Rating, 0)
-    currentLength := 0
-    fieldCount := 0
-    totalUsers := len(ratings)
-    onlineUsers := 0
-    displayedUsers := 0
-    
-    for _, rating := range ratings {
-        isOnline := isUserOnline(b, *guildID, rating.UserID)
-        if isOnline {
-            onlineUsers++
+func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
+    return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+        ratings, err := utils.GetRatings()
+        if err != nil {
+            return err
         }
 
-        // Apply filter if specified
-        if filter == "online" && !isOnline {
-            continue
-        }
-        if filter == "offline" && isOnline {
-            continue
-        }
+        guildID := e.GuildID()
+        filter := e.SlashCommandInteractionData().String("filter")
 
-        fieldValue := createFieldValue(rating, isOnline)
+        const maxEmbedLength = 2000
+        const maxFieldsPerEmbed = 21
+        var pages []*discord.EmbedBuilder
         
-        if currentLength + len(fieldValue) > maxEmbedLength || fieldCount >= maxFieldsPerEmbed {
+        pageUsers := make([]constants.Rating, 0)
+        currentLength := 0
+        fieldCount := 0
+        totalUsers := len(ratings)
+        onlineUsers := 0
+        displayedUsers := 0
+        
+        for _, rating := range ratings {
+            isOnline := isUserOnline(b, *guildID, rating.UserID)
+            if isOnline {
+                onlineUsers++
+            }
+
+            // Apply filter if specified
+            if filter == "online" && !isOnline {
+                continue
+            }
+            if filter == "offline" && isOnline {
+                continue
+            }
+
+            fieldValue := createFieldValue(rating, isOnline)
+            
+            if currentLength + len(fieldValue) > maxEmbedLength || fieldCount >= maxFieldsPerEmbed {
+                embed := createEmbed(pageUsers, totalUsers, onlineUsers, displayedUsers, filter, b, *guildID)
+                pages = append(pages, embed)
+                
+                pageUsers = make([]constants.Rating, 0)
+                currentLength = 0
+                fieldCount = 0
+            }
+            
+            pageUsers = append(pageUsers, rating)
+            currentLength += len(fieldValue)
+            fieldCount++
+            displayedUsers++
+        }
+        
+        if len(pageUsers) > 0 {
             embed := createEmbed(pageUsers, totalUsers, onlineUsers, displayedUsers, filter, b, *guildID)
             pages = append(pages, embed)
-            
-            pageUsers = make([]constants.Rating, 0)
-            currentLength = 0
-            fieldCount = 0
         }
         
-        pageUsers = append(pageUsers, rating)
-        currentLength += len(fieldValue)
-        fieldCount++
-        displayedUsers++
+        return b.Paginator.Create(e.Respond, paginator.Pages{
+            ID: e.ID().String(),
+            PageFunc: func(page int, embed *discord.EmbedBuilder) {
+                *embed = *pages[page]
+                embed.SetFooter(fmt.Sprintf("Page %d of %d", page+1, len(pages)), "")
+            },
+            Pages:      len(pages),
+            ExpireMode: paginator.ExpireModeAfterLastUsage,
+        }, false)
     }
-    
-    if len(pageUsers) > 0 {
-        embed := createEmbed(pageUsers, totalUsers, onlineUsers, displayedUsers, filter, b, *guildID)
-        pages = append(pages, embed)
-    }
-    
-    return b.Paginator.Create(e.Respond, paginator.Pages{
-        ID: e.ID().String(),
-        PageFunc: func(page int, embed *discord.EmbedBuilder) {
-            *embed = *pages[page]
-            embed.SetFooter(fmt.Sprintf("Page %d of %d", page+1, len(pages)), "")
-        },
-        Pages:      len(pages),
-        ExpireMode: paginator.ExpireModeAfterLastUsage,
-    }, false)
 }
 
 func createEmbed(users []constants.Rating, totalUsers, onlineUsers, displayedUsers int, filter string, b *dbot.Bot, guildID snowflake.ID ) *discord.EmbedBuilder {
