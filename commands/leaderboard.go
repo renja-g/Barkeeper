@@ -21,8 +21,8 @@ func LeaderboardHandler() handler.SlashCommandHandler {
 		}
 
 		ratings = utils.GetLeaderboard(ratings)
-		if len(ratings) > 20 {
-			ratings = ratings[:20]
+		if len(ratings) > 15 {
+			ratings = ratings[:15]
 		}
 
 		fields := make([]discord.EmbedField, len(ratings))
@@ -35,7 +35,7 @@ func LeaderboardHandler() handler.SlashCommandHandler {
 
 			fields[i] = discord.EmbedField{
 				Value:  fmt.Sprintf("<@%s>\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", r.UserID, r.Rating, r.Wins, r.Losses, winrate),
-				Name:   "Rank",
+				Name:   fmt.Sprintf("#%d", i+1),
 				Inline: &inline,
 			}
 		}
@@ -44,7 +44,7 @@ func LeaderboardHandler() handler.SlashCommandHandler {
 			SetTitle("Leaderboard").
 			SetColor(0x3498db).
 			SetFields(fields...).
-			SetFooterText("Top 20 players").
+			SetFooterText("Top 15 players").
 			Build()
 
 		return e.CreateMessage(discord.MessageCreate{
