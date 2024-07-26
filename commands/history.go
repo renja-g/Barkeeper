@@ -6,6 +6,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/paginator"
+	"github.com/disgoorg/snowflake/v2"
 	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/constants"
 	"github.com/renja-g/Barkeeper/utils"
@@ -14,12 +15,26 @@ import (
 var history = discord.SlashCommandCreate{
 	Name:        "history",
 	Description: "Show the history of all matches.",
+	Options: []discord.ApplicationCommandOption{
+		discord.ApplicationCommandOptionUser{
+			Name:        "user",
+			Description: "To show the history of a specific user.",
+			Required:    false,
+		},
+	},
 }
 
 func HistoryHandler(e *handler.CommandEvent, b *dbot.Bot) error {
+	userOption, passed := e.SlashCommandInteractionData().OptUser("user")
+	
 	matches, err := utils.GetMatches()
 	if err != nil {
 		return err
+	}
+
+	// Filter matches if a user is specified
+	if passed {
+		matches = filterMatchesByUser(matches, userOption.ID)
 	}
 
 	// reverse the matches so the most recent match is shown first
@@ -37,7 +52,7 @@ func HistoryHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 		}
 
 		pageMatches := matches[i:end]
-		embed := createHistoryEmbed(pageMatches)
+		embed := createHistoryEmbed(pageMatches, &userOption)
 		pages = append(pages, embed)
 	}
 
@@ -52,9 +67,33 @@ func HistoryHandler(e *handler.CommandEvent, b *dbot.Bot) error {
 	}, false)
 }
 
-func createHistoryEmbed(matches []constants.Match) *discord.EmbedBuilder {
+func filterMatchesByUser(matches []constants.Match, userID snowflake.ID) []constants.Match {
+	filtered := []constants.Match{}
+	for _, match := range matches {
+		if containsUser(match.Team1, userID) || containsUser(match.Team2, userID) {
+			filtered = append(filtered, match)
+		}
+	}
+	return filtered
+}
+
+func containsUser(team []snowflake.ID, userID snowflake.ID) bool {
+	for _, id := range team {
+		if id == userID {
+			return true
+		}
+	}
+	return false
+}
+
+func createHistoryEmbed(matches []constants.Match, user *discord.User) *discord.EmbedBuilder {
+	title := "Match History"
+	if user != nil {
+		title = fmt.Sprintf("Match History for %s", user.Username)
+	}
+
 	embed := discord.NewEmbedBuilder().
-		SetTitle("Match History").
+		SetTitle(title).
 		SetColor(0x3498db)
 
 	for _, m := range matches {
