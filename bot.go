@@ -39,11 +39,15 @@ func (b *Bot) SetupBot(listeners ...bot.EventListener) {
 			gateway.IntentGuilds,
 			gateway.IntentGuildMessages,
 			gateway.IntentMessageContent,
-			gateway.IntentGuildVoiceStates)),
+			gateway.IntentGuildVoiceStates,
+			gateway.IntentGuildPresences,
+		)),
 		bot.WithCacheConfigOpts(cache.WithCaches(
 			cache.FlagGuilds,
 			cache.FlagVoiceStates,
-			cache.FlagChannels)),
+			cache.FlagChannels,
+			cache.FlagPresences,
+			)),
 		bot.WithEventListeners(b.Paginator),
 		bot.WithEventListeners(listeners...),
 	)
