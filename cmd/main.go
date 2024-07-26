@@ -56,11 +56,11 @@ func main() {
 	h.SlashCommand("/history", commands.HistoryHandler(b))
 	h.SlashCommand("/list", commands.ListHandler(b))
 
-	h.Component("/reshuffle_button", components.ReshuffleComponent)
-	h.Component("/start_match_button", components.StartMatchComponent)
-	h.Component("/team1_wins_button", components.SetWinnerComponent)
-	h.Component("/team2_wins_button", components.SetWinnerComponent)
-	h.Component("/cancel_match_button", components.CancelMatchComponent)
+	h.ButtonComponent("/reshuffle_button", components.ReshuffleComponent())
+	h.ButtonComponent("/start_match_button", components.StartMatchComponent())
+	h.ButtonComponent("/team1_wins_button", components.SetWinnerComponent())
+	h.ButtonComponent("/team2_wins_button", components.SetWinnerComponent())
+	h.ButtonComponent("/cancel_match_button", components.CancelMatchComponent())
 
 	b.SetupBot(h, bot.NewListenerFunc(b.OnReady))
 
