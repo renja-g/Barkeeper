@@ -26,7 +26,7 @@ func CancelMatchComponent() handler.ButtonComponentHandler {
 				newMatchArr = append(newMatchArr, matches[i])
 			}
 		}
-		
+
 		err = utils.SaveMatches(newMatchArr)
 		if err != nil {
 			return err

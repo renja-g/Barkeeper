@@ -15,20 +15,20 @@ import (
 )
 
 func New(logger *slog.Logger, version string, config Config) *Bot {
-    return &Bot{
-        Logger:    logger,
-        Config:    config,
-        Paginator: paginator.New(),
-        Version:   version,
-    }
+	return &Bot{
+		Logger:    logger,
+		Config:    config,
+		Paginator: paginator.New(),
+		Version:   version,
+	}
 }
 
 type Bot struct {
-    Logger    *slog.Logger
-    Client    bot.Client
-    Paginator *paginator.Manager
-    Config    Config
-    Version   string
+	Logger    *slog.Logger
+	Client    bot.Client
+	Paginator *paginator.Manager
+	Config    Config
+	Version   string
 }
 
 func (b *Bot) SetupBot(listeners ...bot.EventListener) {
@@ -47,7 +47,7 @@ func (b *Bot) SetupBot(listeners ...bot.EventListener) {
 			cache.FlagVoiceStates,
 			cache.FlagChannels,
 			cache.FlagPresences,
-			)),
+		)),
 		bot.WithEventListeners(b.Paginator),
 		bot.WithEventListeners(listeners...),
 	)

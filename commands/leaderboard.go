@@ -15,7 +15,7 @@ var leaderboard = discord.SlashCommandCreate{
 }
 
 func LeaderboardHandler() handler.SlashCommandHandler {
-    return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 		ratings, err := utils.GetRatings()
 		if err != nil {
 			return err
@@ -24,9 +24,7 @@ func LeaderboardHandler() handler.SlashCommandHandler {
 		// Filter out users with less than 5 games
 		ratings = filterRatings(ratings, 5)
 
-		
 		// Sort ratings and get top 15
-
 
 		ratings = utils.SortRatingsByWinRate(ratings)
 		if len(ratings) > 15 {

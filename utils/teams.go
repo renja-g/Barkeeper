@@ -124,7 +124,7 @@ func ParseMatchID(message discord.Message) (*snowflake.ID, error) {
 	return &id, nil
 }
 
-func SortRatingsByWinRate(ratings []constants.Rating) []constants.Rating{
+func SortRatingsByWinRate(ratings []constants.Rating) []constants.Rating {
 	sort.Slice(ratings, func(i, j int) bool {
 		winRate1, winRate2 := 0.0, 0.0
 		if ratings[i].Wins+ratings[i].Losses != 0 {

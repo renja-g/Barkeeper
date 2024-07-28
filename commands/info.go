@@ -20,7 +20,7 @@ var info = discord.SlashCommandCreate{
 }
 
 func InfoHandler() handler.SlashCommandHandler {
-    return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 		ratings, err := utils.GetRatings()
 		if err != nil {
 			return err

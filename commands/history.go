@@ -25,48 +25,48 @@ var history = discord.SlashCommandCreate{
 }
 
 func HistoryHandler(b *dbot.Bot) handler.SlashCommandHandler {
-    return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-        userOption, passed := data.OptUser("user")
-        
-        matches, err := utils.GetMatches()
-        if err != nil {
-            return err
-        }
+	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+		userOption, passed := data.OptUser("user")
 
-        // Filter matches if a user is specified
-        if passed {
-            matches = filterMatchesByUser(matches, userOption.ID)
-        }
+		matches, err := utils.GetMatches()
+		if err != nil {
+			return err
+		}
 
-        // reverse the matches so the most recent match is shown first
-        for i, j := 0, len(matches)-1; i < j; i, j = i+1, j-1 {
-            matches[i], matches[j] = matches[j], matches[i]
-        }
+		// Filter matches if a user is specified
+		if passed {
+			matches = filterMatchesByUser(matches, userOption.ID)
+		}
 
-        const maxFieldsPerPage = 6
-        var pages []*discord.EmbedBuilder
+		// reverse the matches so the most recent match is shown first
+		for i, j := 0, len(matches)-1; i < j; i, j = i+1, j-1 {
+			matches[i], matches[j] = matches[j], matches[i]
+		}
 
-        for i := 0; i < len(matches); i += maxFieldsPerPage {
-            end := i + maxFieldsPerPage
-            if end > len(matches) {
-                end = len(matches)
-            }
+		const maxFieldsPerPage = 6
+		var pages []*discord.EmbedBuilder
 
-            pageMatches := matches[i:end]
-            embed := createHistoryEmbed(pageMatches, &userOption)
-            pages = append(pages, embed)
-        }
+		for i := 0; i < len(matches); i += maxFieldsPerPage {
+			end := i + maxFieldsPerPage
+			if end > len(matches) {
+				end = len(matches)
+			}
 
-        return b.Paginator.Create(e.Respond, paginator.Pages{
-            ID: e.ID().String(),
-            PageFunc: func(page int, embed *discord.EmbedBuilder) {
-                *embed = *pages[page]
-                embed.SetFooter(fmt.Sprintf("Page %d of %d", page+1, len(pages)), "")
-            },
-            Pages:      len(pages),
-            ExpireMode: paginator.ExpireModeAfterLastUsage,
-        }, false)
-    }
+			pageMatches := matches[i:end]
+			embed := createHistoryEmbed(pageMatches, &userOption)
+			pages = append(pages, embed)
+		}
+
+		return b.Paginator.Create(e.Respond, paginator.Pages{
+			ID: e.ID().String(),
+			PageFunc: func(page int, embed *discord.EmbedBuilder) {
+				*embed = *pages[page]
+				embed.SetFooter(fmt.Sprintf("Page %d of %d", page+1, len(pages)), "")
+			},
+			Pages:      len(pages),
+			ExpireMode: paginator.ExpireModeAfterLastUsage,
+		}, false)
+	}
 }
 func filterMatchesByUser(matches []constants.Match, userID snowflake.ID) []constants.Match {
 	filtered := []constants.Match{}

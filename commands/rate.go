@@ -26,7 +26,7 @@ var rate = discord.SlashCommandCreate{
 }
 
 func RateHandler() handler.SlashCommandHandler {
-    return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 		embed := discord.NewEmbedBuilder().
 			SetTitle("Rating set").
 			SetDescriptionf("Rating for %s set to %d", e.SlashCommandInteractionData().User("user").Mention(), e.SlashCommandInteractionData().Int("rating")).

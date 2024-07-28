@@ -73,7 +73,6 @@ func StartMatchComponent() handler.ButtonComponentHandler {
 			}
 		}
 
-
 		// Update the message with the match ID
 		embed := e.Message.Embeds[0]
 		embed.Title = "Match started"
