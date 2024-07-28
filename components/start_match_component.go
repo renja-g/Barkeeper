@@ -7,11 +7,12 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	dSnowflake "github.com/disgoorg/snowflake/v2"
+	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/constants"
 	"github.com/renja-g/Barkeeper/utils"
 )
 
-func StartMatchComponent() handler.ButtonComponentHandler {
+func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
 		team1Ptr, team2Ptr := utils.ParseTeamMessage(e.Message)
 
@@ -50,10 +51,8 @@ func StartMatchComponent() handler.ButtonComponentHandler {
 		}
 
 		// Move member into their respective voice channels
-		// TODO: Move the ids into the conf
-		var blueChannelID, redChannelID dSnowflake.ID
-		blueChannelID = 1242566191218954291
-		redChannelID = 1242566236290814052
+		blueChannelID := cfg.BlueChannelID
+		redChannelID := cfg.RedChannelID
 
 		for _, memberID := range team1 {
 			_, err := e.Client().Rest().UpdateMember(*e.GuildID(), memberID, discord.MemberUpdate{

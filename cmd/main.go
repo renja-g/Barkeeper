@@ -58,7 +58,7 @@ func main() {
 	h.SlashCommand("/invite", commands.InviteHandler(b))
 
 	h.ButtonComponent("/reshuffle_button", components.ReshuffleComponent())
-	h.ButtonComponent("/start_match_button", components.StartMatchComponent())
+	h.ButtonComponent("/start_match_button", components.StartMatchComponent(cfg))
 	h.ButtonComponent("/team1_wins_button", components.SetWinnerComponent())
 	h.ButtonComponent("/team2_wins_button", components.SetWinnerComponent())
 	h.ButtonComponent("/cancel_match_button", components.CancelMatchComponent())
