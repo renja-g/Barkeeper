@@ -56,6 +56,7 @@ func main() {
 	h.SlashCommand("/history", commands.HistoryHandler(b))
 	h.SlashCommand("/list", commands.ListHandler(b))
 	h.SlashCommand("/invite", commands.InviteHandler(b))
+	h.SlashCommand("/help", commands.HelpHandler()) // Added this line
 
 	h.ButtonComponent("/reshuffle_button", components.ReshuffleComponent())
 	h.ButtonComponent("/start_match_button", components.StartMatchComponent(cfg))

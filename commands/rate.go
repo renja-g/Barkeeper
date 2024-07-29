@@ -9,7 +9,7 @@ import (
 
 var rate = discord.SlashCommandCreate{
 	Name:        "rate",
-	Description: "rates a user",
+	Description: "Rates a user.",
 	Options: []discord.ApplicationCommandOption{
 		discord.ApplicationCommandOptionUser{
 			Name:        "user",

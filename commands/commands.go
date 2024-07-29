@@ -10,4 +10,5 @@ var Commands = []discord.ApplicationCommandCreate{
 	history,
 	list,
 	invite,
+	help,
 }
