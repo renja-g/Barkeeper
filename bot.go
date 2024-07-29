@@ -52,13 +52,13 @@ func (b *Bot) SetupBot(listeners ...bot.EventListener) {
 		bot.WithEventListeners(listeners...),
 	)
 	if err != nil {
-		b.Logger.Error("Failed to setup b: ", err)
+		b.Logger.Error("Failed to setup bot", slog.Any("error", err))
 	}
 }
 
 func (b *Bot) OnReady(_ *events.Ready) {
 	b.Logger.Info("Butler ready")
 	if err := b.Client.SetPresence(context.TODO(), gateway.WithListeningActivity("you"), gateway.WithOnlineStatus(discord.OnlineStatusOnline)); err != nil {
-		b.Logger.Error("Failed to set presence: %s", err)
+		b.Logger.Error("Failed to set presence", slog.Any("error", err))
 	}
 }
