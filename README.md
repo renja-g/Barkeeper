@@ -1,21 +1,18 @@
 # Barkeeper
-> Barkeeper is a Discord bot that help to organize custom matches, by generating fair teams and hand also provides statistical data of past matches.
+> Barkeeper is a Discord bot that help to organize custom matches, by generating fair teams and also provides statistical data of past matches.
 
 ## Commands
 - `/rate @user 9`
   > Rates a user.
-  <img width="238" alt="image" src="https://github.com/renja-g/Barkeeper/assets/76645494/64b5779f-a5cc-4fdd-98ba-5068d4f39a91">
 
 - `/info @user`
-  > Shows the information of the user.
-  <img width="238" alt="image" src="https://github.com/renja-g/Barkeeper/assets/76645494/8d4e2c66-a2d2-46d5-adce-9ce3d9e047be">
+  > Shows the information of a user.
 
-- `/list`
-  > Shows a list of all users and there stats, sorted by a modified Wilson score algorithm.
-  <img width="414" alt="image" src="https://github.com/renja-g/Barkeeper/assets/76645494/de3ff6a8-ec00-4f82-bcc5-2ba7c77988da">
+- `/list filter=Online, Offline`
+  > Shows a list of all users and there stats. If a filter is set the list for example only contains online uses. Giving a quick overview if enough would be there for a custom match.
 
 - `/teams`
-  > generates two teams with the people in the voice channel with the command user. The teams will be balanced using the rating. The message will have two buttons:
+  > generates two teams with the people in the voice channel the command user is in. The teams will be balanced using the rating. The message will have two buttons:
   > 
   > [Start Match]
   > [Reshuffle Teams]
@@ -33,8 +30,8 @@
 
 
 
-- `/history`
-  > Shows all past matches.
+- `/history user=@user`
+  > Shows all past matches. Or only the matches of a certain user.
 
 - `/help`
   > Shows the help message.
