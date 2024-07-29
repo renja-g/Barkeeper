@@ -14,7 +14,7 @@ import (
 
 var teams = discord.SlashCommandCreate{
 	Name:        "teams",
-	Description: "Displays information about a given user.",
+	Description: "Generates fair teams with the users in the voice channel you are in.",
 }
 
 func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
