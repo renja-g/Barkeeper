@@ -33,13 +33,24 @@ func InviteHandler(b *dbot.Bot) handler.SlashCommandHandler {
 		}
 
 		// Send message where all users get pinged
-		message := "Hey, let's play a custom game! "
+		message := "Hey, let's play a custom game!\nWho's in?"
 		for _, rating := range onlineUsers {
 			message += fmt.Sprintf("<@%s> ", rating.UserID)
 		}
 
-		return e.CreateMessage(discord.MessageCreate{
-			Content: message,
-		})
+		// An embed that shows who's in
+		// After pressing the button, the user will added to the list
+		embed := discord.NewEmbedBuilder().
+			SetTitle("Current players").
+			SetDescription("(0/10)").
+			Build()
+
+		return e.CreateMessage(discord.NewMessageCreateBuilder().
+			SetContent(message).
+			SetEmbeds(embed).
+			AddActionRow(
+				discord.NewPrimaryButton("I'm in", "accept_the_invite_button"),
+			).
+			Build())
 	}
 }

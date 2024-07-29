@@ -62,6 +62,7 @@ func main() {
 	h.ButtonComponent("/team1_wins_button", components.SetWinnerComponent())
 	h.ButtonComponent("/team2_wins_button", components.SetWinnerComponent())
 	h.ButtonComponent("/cancel_match_button", components.CancelMatchComponent())
+	h.ButtonComponent("/accept_the_invite_button", components.AcceptTheInviteComponent())
 
 	b.SetupBot(h, bot.NewListenerFunc(b.OnReady))
 
