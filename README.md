@@ -35,3 +35,10 @@
 
 - `/help`
   > Shows the help message.
+
+## Setup
+0. Make sure that Docker is installed on your system.
+1. Clone the repository `git clone http://github.com/renja-g/Barkeeper`
+2. Rename the `example.config.json` file to `config.json` and fill in the required information.
+3. Run `docker-compose up -d` in the root directory of the project.
+4. The bot should now be running and you can invite it to your server.
