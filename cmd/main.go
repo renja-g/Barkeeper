@@ -57,15 +57,15 @@ func main() {
 	h.SlashCommand("/list", commands.ListHandler(b))
 	h.SlashCommand("/invite", commands.InviteHandler(b))
 	h.SlashCommand("/help", commands.HelpHandler())
-	h.SlashCommand("/link_account", commands.LinkAccountHandler())
+	h.SlashCommand("/link_account", commands.LinkAccountHandler(cfg))
 
-	h.ButtonComponent("/verify_acc/{data}", components.VerifyAccountLinkComponent())
 	h.ButtonComponent("/reshuffle_button", components.ReshuffleComponent())
 	h.ButtonComponent("/start_match_button", components.StartMatchComponent(cfg))
 	h.ButtonComponent("/team1_wins_button", components.SetWinnerComponent())
 	h.ButtonComponent("/team2_wins_button", components.SetWinnerComponent())
 	h.ButtonComponent("/cancel_match_button", components.CancelMatchComponent())
 	h.ButtonComponent("/accept_the_invite_button", components.AcceptTheInviteComponent())
+	h.ButtonComponent("/verify_acc/{data}", components.VerifyAccountLinkComponent(cfg))
 
 	b.SetupBot(h, bot.NewListenerFunc(b.OnReady))
 

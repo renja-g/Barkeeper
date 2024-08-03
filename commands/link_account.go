@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 
-	"math/rand"
+	dbot "github.com/renja-g/Barkeeper"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
@@ -69,13 +70,13 @@ var link_account = discord.SlashCommandCreate{
 	},
 }
 
-func LinkAccountHandler() handler.SlashCommandHandler {
+func LinkAccountHandler(cfg *dbot.Config) handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 		gameName := data.String("game_name")
 		tagLine := data.String("tag_line")
 		region := data.String("region")
 
-		url := fmt.Sprintf("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=RGAPI-55cd5b47-9656-4ebe-ac35-086b704432f4", gameName, tagLine)
+		url := fmt.Sprintf("https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/%s/%s?api_key=%s", gameName, tagLine, cfg.RiotApiKey)
 		resp, err := http.Get(url)
 		if err != nil {
 			return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to verify account. Please try again later.").Build())

@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/commands"
 
 	"github.com/disgoorg/disgo/discord"
@@ -16,7 +17,7 @@ type SummonerResponse struct {
 	ProfileIconId int `json:"profileIconId"`
 }
 
-func VerifyAccountLinkComponent() handler.ButtonComponentHandler {
+func VerifyAccountLinkComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
 		dataID := e.Vars["data"]
 
@@ -26,7 +27,7 @@ func VerifyAccountLinkComponent() handler.ButtonComponentHandler {
 		}
 
 		// Fetch current summoner data
-		url := fmt.Sprintf("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/%s?api_key=RGAPI-55cd5b47-9656-4ebe-ac35-086b704432f4", accountData.PUUID)
+		url := fmt.Sprintf("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/%s?api_key=%s", accountData.PUUID, cfg.RiotApiKey)
 		resp, err := http.Get(url)
 		if err != nil {
 			return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to verify account. Please try again later.").Build())
