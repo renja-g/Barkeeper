@@ -88,10 +88,7 @@ func LinkAccountHandler(cfg *dbot.Config) handler.SlashCommandHandler {
 				// VerifyImageID:       randomIconID,
 			}
 			dataID := uuid.New().String()
-			DataCache[dataID] = accountData
 
-			// Fetch current summoner data
-			// To get the current iconID
 			url := fmt.Sprintf("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/%s?api_key=%s", accountData.PUUID, cfg.RiotApiKey)
 			resp, err := http.Get(url)
 			if err != nil {
@@ -114,19 +111,41 @@ func LinkAccountHandler(cfg *dbot.Config) handler.SlashCommandHandler {
 				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to parse response. Please try again later.").Build())
 			}
 
-			// Generate a random image ID the user will have to change his profile picture to
-			// if the id matches the one fetched from the Riot API, generate a new one
-			// until it doesn't match
-			randomIconID := rand.Intn(29)
-			for randomIconID == summonerResponse.ProfileIconId {
-				randomIconID = rand.Intn(29)
+			icons := map[int]string{
+				//7:  "DEBONAIR ROSE ICON",
+				//9:  "DAGGERS ICON",
+				//10: "WINGED SWORD ICON",
+				//12: "FULLY STACKED MEJAI'S ICON",
+				18: "MIX MIX ICON",
+				21: "TREE OF LIFE ICON",
+				//22: "REVIVE ICON",
+				//23: "LIL' SPROUT ICON",
+				//24:  "SPIKE SHIELD ICON",
+				//28: "TIBBERS ICON",
 			}
+
+			// Extract keys from the map
+			keys := make([]int, 0, len(icons))
+			for k := range icons {
+				keys = append(keys, k)
+			}
+
+			// Generate a random index
+			randomIndex := rand.Intn(len(keys))
+			for keys[randomIndex] == summonerResponse.ProfileIconId {
+				keys[randomIndex] = rand.Intn(len(keys))
+			}
+			randomIconID := keys[randomIndex]
+			randomIconName := icons[randomIconID]
 			accountData.VerifyImageID = randomIconID
+			
+			DataCache[dataID] = accountData
+			
 			imageURL := fmt.Sprintf("https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default//v1/profile-icons/%d.jpg", randomIconID)
 
 			embed := discord.NewEmbedBuilder().
 				SetTitle("Verify Account").
-				SetDescription(fmt.Sprintf("Account %s#%s has been found.\nChange you profile picture to the image below and click the verify button.", accountData.GameName, accountData.TagLine)).
+				SetDescription(fmt.Sprintf("Account %s#%s has been found.\nChange you profile picture to the `%s` and click the verify button.", accountData.GameName, accountData.TagLine, randomIconName)).
 				SetImage(imageURL).
 				Build()
 
