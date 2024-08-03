@@ -8,27 +8,14 @@ import (
 	"net/http"
 
 	dbot "github.com/renja-g/Barkeeper"
+	"github.com/renja-g/Barkeeper/constants"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/google/uuid"
 )
 
-// RiotAccountResponse represents the structure of the Riot API response
-type RiotAccountResponse struct {
-	PUUID    string `json:"puuid"`
-	GameName string `json:"gameName"`
-	TagLine  string `json:"tagLine"`
-}
-
-// AccountData extends RiotAccountResponse with additional information
-type AccountData struct {
-	RiotAccountResponse
-	Region        string
-	VerifyImageID int
-}
-
-var DataCache = make(map[string]AccountData)
+var DataCache = make(map[string]constants.AccountData)
 
 var link_account = discord.SlashCommandCreate{
 	Name:        "link_account",
@@ -89,23 +76,53 @@ func LinkAccountHandler(cfg *dbot.Config) handler.SlashCommandHandler {
 				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to read response. Please try again later.").Build())
 			}
 
-			var riotResponse RiotAccountResponse
+			var riotResponse constants.RiotAccountResponse
 			err = json.Unmarshal(body, &riotResponse)
 			if err != nil {
 				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to parse response. Please try again later.").Build())
 			}
 
-			// Generate a random image ID the user will have to change his profile picture to
-			randomIconID := rand.Intn(29)
-			imageURL := fmt.Sprintf("https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default//v1/profile-icons/%d.jpg", randomIconID)
-
-			accountData := AccountData{
+			accountData := constants.AccountData{
 				RiotAccountResponse: riotResponse,
 				Region:              region,
-				VerifyImageID:       randomIconID,
+				// VerifyImageID:       randomIconID,
 			}
 			dataID := uuid.New().String()
 			DataCache[dataID] = accountData
+
+			// Fetch current summoner data
+			// To get the current iconID
+			url := fmt.Sprintf("https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/%s?api_key=%s", accountData.PUUID, cfg.RiotApiKey)
+			resp, err := http.Get(url)
+			if err != nil {
+				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to verify account. Please try again later.").Build())
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != http.StatusOK {
+				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to fetch summoner data. Please try again later.").Build())
+			}
+
+			body, err = io.ReadAll(resp.Body)
+			if err != nil {
+				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to read response. Please try again later.").Build())
+			}
+
+			var summonerResponse constants.SummonerResponse
+			err = json.Unmarshal(body, &summonerResponse)
+			if err != nil {
+				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to parse response. Please try again later.").Build())
+			}
+
+			// Generate a random image ID the user will have to change his profile picture to
+			// if the id matches the one fetched from the Riot API, generate a new one
+			// until it doesn't match
+			randomIconID := rand.Intn(29)
+			for randomIconID == summonerResponse.ProfileIconId {
+				randomIconID = rand.Intn(29)
+			}
+			accountData.VerifyImageID = randomIconID
+			imageURL := fmt.Sprintf("https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default//v1/profile-icons/%d.jpg", randomIconID)
 
 			embed := discord.NewEmbedBuilder().
 				SetTitle("Verify Account").

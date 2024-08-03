@@ -8,14 +8,11 @@ import (
 
 	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/commands"
+	"github.com/renja-g/Barkeeper/constants"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 )
-
-type SummonerResponse struct {
-	ProfileIconId int `json:"profileIconId"`
-}
 
 func VerifyAccountLinkComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
@@ -43,7 +40,7 @@ func VerifyAccountLinkComponent(cfg *dbot.Config) handler.ButtonComponentHandler
 			return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to read response. Please try again later.").Build())
 		}
 
-		var summonerResponse SummonerResponse
+		var summonerResponse constants.SummonerResponse
 		err = json.Unmarshal(body, &summonerResponse)
 		if err != nil {
 			return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to parse response. Please try again later.").Build())
