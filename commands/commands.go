@@ -11,4 +11,5 @@ var Commands = []discord.ApplicationCommandCreate{
 	list,
 	invite,
 	help,
+	link_account,
 }

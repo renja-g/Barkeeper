@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/sasha-s/go-csync v0.0.0-20240107134140-fcbab37b09ad // indirect
 	golang.org/x/crypto v0.25.0 // indirect
