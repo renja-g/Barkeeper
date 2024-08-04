@@ -124,14 +124,31 @@ func makeRequest[T any](url, errorMessage string) (*T, error) {
 	return &result, nil
 }
 
+var icons = map[int]string{
+	7:  "DEBONAIR ROSE ICON",
+	9:  "DAGGERS ICON",
+	10: "WINGED SWORD ICON",
+	12: "FULLY STACKED MEJAI'S ICON",
+	18: "MIX MIX ICON",
+	21: "TREE OF LIFE ICON",
+	22: "REVIVE ICON",
+	23: "LIL' SPROUT ICON",
+	24:  "SPIKE SHIELD ICON",
+	28: "TIBBERS ICON",
+}
+
 func getRandomIcon(currentIconId int) int {
-	icons := []int{18, 9, 10, 12, 21, 22, 23, 24, 28, 7}
-	for {
-		randomIconID := icons[rand.Intn(len(icons))]
-		if randomIconID != currentIconId {
-			return randomIconID
+	iconIDs := make([]int, 0, len(icons))
+	for id := range icons {
+		if id != currentIconId {
+			iconIDs = append(iconIDs, id)
 		}
 	}
+	return iconIDs[rand.Intn(len(iconIDs))]
+}
+
+func getIconName(iconID int) string {
+	return icons[iconID]
 }
 
 func sendVerificationMessage(e *handler.CommandEvent, accountData constants.AccountData, dataID string) error {
@@ -151,21 +168,4 @@ func sendVerificationMessage(e *handler.CommandEvent, accountData constants.Acco
 		).
 		Build(),
 	)
-}
-
-func getIconName(iconID int) string {
-	icons := map[int]string{
-                7:  "DEBONAIR ROSE ICON",
-                9:  "DAGGERS ICON",
-                10: "WINGED SWORD ICON",
-                12: "FULLY STACKED MEJAI'S ICON",
-                18: "MIX MIX ICON",
-                21: "TREE OF LIFE ICON",
-                22: "REVIVE ICON",
-                23: "LIL' SPROUT ICON",
-                24:  "SPIKE SHIELD ICON",
-                28: "TIBBERS ICON",
-
-	}
-	return icons[iconID]
 }
