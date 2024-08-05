@@ -25,7 +25,7 @@ func SetWinnerComponent() handler.ButtonComponentHandler {
 
 		// Update the match with the winner
 		for i, match := range matches {
-			if match.MatchID == *matchID {
+			if match.MatchID == matchID {
 				matches[i].Winner = winner
 				break
 			}
@@ -47,7 +47,7 @@ func SetWinnerComponent() handler.ButtonComponentHandler {
 		// Update the stats
 		for i, rating := range ratings {
 			for _, player := range team1Ptr {
-				if rating.UserID == *player {
+				if rating.UserID == player {
 					if winner == "team1" {
 						ratings[i].Wins += 1
 					} else {
@@ -57,7 +57,7 @@ func SetWinnerComponent() handler.ButtonComponentHandler {
 				}
 			}
 			for _, player := range team2Ptr {
-				if rating.UserID == *player {
+				if rating.UserID == player {
 					if winner == "team2" {
 						ratings[i].Wins += 1
 					} else {

@@ -109,11 +109,11 @@ func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
 		}
 
 		// Get the ratings for the members in the voice channel
-		var memberRatings []*constants.Rating
+		var memberRatings []constants.Rating
 		for _, id := range ids {
 			for _, rating := range ratings {
 				if rating.UserID == id {
-					memberRatings = append(memberRatings, &rating)
+					memberRatings = append(memberRatings, rating)
 					break
 				}
 			}

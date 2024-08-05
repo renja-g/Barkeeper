@@ -35,7 +35,7 @@ func main() {
 
 	logLevel := slog.LevelInfo
 	if cfg.LogLevel != 0 {
-		logLevel = slog.Level(cfg.LogLevel)
+		logLevel = cfg.LogLevel
 	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{

@@ -40,7 +40,7 @@ func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
 
 		const maxEmbedLength = 2000
 		const maxFieldsPerEmbed = 21
-		var pages []*discord.EmbedBuilder
+		var pages []discord.EmbedBuilder
 
 		pageUsers := make([]constants.Rating, 0)
 		currentLength := 0
@@ -67,7 +67,7 @@ func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
 
 			if currentLength+len(fieldValue) > maxEmbedLength || fieldCount >= maxFieldsPerEmbed {
 				embed := createEmbed(pageUsers, totalUsers, onlineUsers, displayedUsers, filter, b, *guildID)
-				pages = append(pages, embed)
+				pages = append(pages, *embed)
 
 				pageUsers = make([]constants.Rating, 0)
 				currentLength = 0
@@ -82,13 +82,13 @@ func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
 
 		if len(pageUsers) > 0 {
 			embed := createEmbed(pageUsers, totalUsers, onlineUsers, displayedUsers, filter, b, *guildID)
-			pages = append(pages, embed)
+			pages = append(pages, *embed)
 		}
 
 		return b.Paginator.Create(e.Respond, paginator.Pages{
 			ID: e.ID().String(),
 			PageFunc: func(page int, embed *discord.EmbedBuilder) {
-				*embed = *pages[page]
+				*embed = pages[page]
 				embed.SetFooter(fmt.Sprintf("Page %d of %d", page+1, len(pages)), "")
 			},
 			Pages:      len(pages),

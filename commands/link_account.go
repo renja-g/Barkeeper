@@ -133,7 +133,7 @@ var icons = map[int]string{
 	21: "TREE OF LIFE ICON",
 	22: "REVIVE ICON",
 	23: "LIL' SPROUT ICON",
-	24:  "SPIKE SHIELD ICON",
+	24: "SPIKE SHIELD ICON",
 	28: "TIBBERS ICON",
 }
 

@@ -69,7 +69,7 @@ func HistoryHandler(b *dbot.Bot) handler.SlashCommandHandler {
 	}
 }
 func filterMatchesByUser(matches []constants.Match, userID snowflake.ID) []constants.Match {
-	filtered := []constants.Match{}
+	var filtered []constants.Match
 	for _, match := range matches {
 		if containsUser(match.Team1, userID) || containsUser(match.Team2, userID) {
 			filtered = append(filtered, match)
@@ -90,7 +90,7 @@ func containsUser(team []snowflake.ID, userID snowflake.ID) bool {
 func createHistoryEmbed(matches []constants.Match, user *discord.User) *discord.EmbedBuilder {
 	title := "Match History"
 	if user != nil {
-		title = fmt.Sprintf("Match History for %s", user.Username)
+		title += " for " + user.Username
 	}
 
 	embed := discord.NewEmbedBuilder().

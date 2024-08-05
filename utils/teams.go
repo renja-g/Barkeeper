@@ -14,18 +14,18 @@ import (
 	"github.com/renja-g/Barkeeper/constants"
 )
 
-func GenerateTeams(users []*constants.Rating) ([]*constants.Rating, []*constants.Rating) {
+func GenerateTeams(users []constants.Rating) ([]constants.Rating, []constants.Rating) {
 	n := len(users)
 	if n%2 != 0 {
 		return nil, nil
 	}
 	halfSize := n / 2
 
-	var bestTeams [][2][]*constants.Rating
+	var bestTeams [][2][]constants.Rating
 	minDifference := math.MaxInt32
 
 	// Helper function to calculate the difference in ratings between two teams
-	calculateDifference := func(team1, team2 []*constants.Rating) int {
+	calculateDifference := func(team1, team2 []constants.Rating) int {
 		rating1, rating2 := 0, 0
 		for _, user := range team1 {
 			rating1 += user.Rating
@@ -39,7 +39,7 @@ func GenerateTeams(users []*constants.Rating) ([]*constants.Rating, []*constants
 	// Generate all possible team combinations using bitwise operations
 	totalCombinations := 1 << n // 2^n
 	for i := 0; i < totalCombinations; i++ {
-		var team1, team2 []*constants.Rating
+		var team1, team2 []constants.Rating
 		for j := 0; j < n; j++ {
 			if i&(1<<j) != 0 {
 				team1 = append(team1, users[j])
@@ -51,9 +51,9 @@ func GenerateTeams(users []*constants.Rating) ([]*constants.Rating, []*constants
 			difference := calculateDifference(team1, team2)
 			if difference < minDifference {
 				minDifference = difference
-				bestTeams = [][2][]*constants.Rating{{team1, team2}}
+				bestTeams = [][2][]constants.Rating{{team1, team2}}
 			} else if difference == minDifference {
-				bestTeams = append(bestTeams, [2][]*constants.Rating{team1, team2})
+				bestTeams = append(bestTeams, [2][]constants.Rating{team1, team2})
 			}
 		}
 	}
@@ -70,7 +70,7 @@ func GenerateTeams(users []*constants.Rating) ([]*constants.Rating, []*constants
 	return bestTeam1, bestTeam2
 }
 
-func FormatTeam(team []*constants.Rating) string {
+func FormatTeam(team []constants.Rating) string {
 	var formatted string
 	for i, user := range team {
 		if i != 0 {
@@ -81,7 +81,7 @@ func FormatTeam(team []*constants.Rating) string {
 	return formatted
 }
 
-func CalculateTeamRating(team []*constants.Rating) int {
+func CalculateTeamRating(team []constants.Rating) int {
 	rating := 0
 	for _, user := range team {
 		rating += user.Rating
@@ -89,8 +89,8 @@ func CalculateTeamRating(team []*constants.Rating) int {
 	return rating
 }
 
-func ParseTeamMessage(message discord.Message) ([]*dSnowflake.ID, []*dSnowflake.ID) {
-	var team1, team2 []*dSnowflake.ID
+func ParseTeamMessage(message discord.Message) ([]dSnowflake.ID, []dSnowflake.ID) {
+	var team1, team2 []dSnowflake.ID
 	re := regexp.MustCompile(`<@(\d+)> \d+`)
 	team1Matches := re.FindAllString(message.Embeds[0].Fields[0].Value, -1)
 	team2Matches := re.FindAllString(message.Embeds[0].Fields[1].Value, -1)
@@ -100,7 +100,7 @@ func ParseTeamMessage(message discord.Message) ([]*dSnowflake.ID, []*dSnowflake.
 		if err != nil {
 			continue
 		}
-		team1 = append(team1, &id)
+		team1 = append(team1, id)
 	}
 
 	for _, match := range team2Matches {
@@ -108,20 +108,15 @@ func ParseTeamMessage(message discord.Message) ([]*dSnowflake.ID, []*dSnowflake.
 		if err != nil {
 			continue
 		}
-		team2 = append(team2, &id)
+		team2 = append(team2, id)
 	}
 
 	return team1, team2
 }
 
-func ParseMatchID(message discord.Message) (*snowflake.ID, error) {
+func ParseMatchID(message discord.Message) (snowflake.ID, error) {
 	matchID := message.Embeds[0].Footer.Text[9:28]
-	id, err := snowflake.ParseString(matchID)
-
-	if err != nil {
-		return nil, err
-	}
-	return &id, nil
+	return snowflake.ParseString(matchID)
 }
 
 func SortRatingsByWinRate(ratings []constants.Rating) []constants.Rating {

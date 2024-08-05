@@ -32,13 +32,13 @@ func LeaderboardHandler() handler.SlashCommandHandler {
 		}
 
 		fields := make([]discord.EmbedField, len(ratings))
-		inline := true
 		for i, r := range ratings {
 			winrate := 0.0
-			if r.Wins+r.Losses > 0 {
-				winrate = float64(r.Wins) / float64(r.Wins+r.Losses) * 100
+			if total := r.Wins + r.Losses; total > 0 {
+				winrate = float64(r.Wins) / float64(total) * 100
 			}
 
+			inline := true
 			winLoss := fmt.Sprintf("%d/%d", r.Wins, r.Losses)
 			fields[i] = discord.EmbedField{
 				Value:  fmt.Sprintf("<@%s>\nRating: %d\nW/L: %s\nWinrate: %.2f%%", r.UserID, r.Rating, winLoss, winrate),

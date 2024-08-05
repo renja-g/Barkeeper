@@ -48,8 +48,9 @@ func InfoHandler() handler.SlashCommandHandler {
 		}
 
 		winrate := 0.0
-		if userRating.Wins+userRating.Losses > 0 {
-			winrate = float64(userRating.Wins) / float64(userRating.Wins+userRating.Losses) * 100
+		total := userRating.Wins + userRating.Losses
+		if total > 0 {
+			winrate = float64(userRating.Wins) / float64(total) * 100
 		}
 
 		embed := discord.NewEmbedBuilder().
