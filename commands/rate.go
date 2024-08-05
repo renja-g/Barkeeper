@@ -43,10 +43,6 @@ func RateHandler() handler.SlashCommandHandler {
 		for i, rating := range ratings {
 			if rating.UserID == e.SlashCommandInteractionData().User("user").ID {
 				ratings[i].Rating = e.SlashCommandInteractionData().Int("rating")
-				err := utils.SaveRatings(ratings)
-				if err != nil {
-					return err
-				}
 				found = true
 				break
 			}

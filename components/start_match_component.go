@@ -19,12 +19,12 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 		// Dereference the pointers in the slices
 		team1 := make([]dSnowflake.ID, len(team1Ptr))
 		for i, v := range team1Ptr {
-			team1[i] = *v
+			team1[i] = v
 		}
 
 		team2 := make([]dSnowflake.ID, len(team2Ptr))
 		for i, v := range team2Ptr {
-			team2[i] = *v
+			team2[i] = v
 		}
 
 		Node, err := snowflake.NewNode(1)

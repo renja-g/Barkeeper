@@ -26,8 +26,7 @@ func InviteHandler(b *dbot.Bot) handler.SlashCommandHandler {
 		onlineUsers := make([]constants.Rating, 0)
 
 		for _, rating := range ratings {
-			isOnline := isUserOnline(b, *guildID, rating.UserID)
-			if isOnline {
+			if isUserOnline(b, *guildID, rating.UserID) {
 				onlineUsers = append(onlineUsers, rating)
 			}
 		}

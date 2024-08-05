@@ -22,7 +22,7 @@ func CancelMatchComponent() handler.ButtonComponentHandler {
 		// Remove the match
 		newMatchArr := make([]constants.Match, 0)
 		for i, match := range matches {
-			if match.MatchID != *matchID {
+			if match.MatchID != matchID {
 				newMatchArr = append(newMatchArr, matches[i])
 			}
 		}

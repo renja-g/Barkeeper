@@ -13,7 +13,7 @@ func ReshuffleComponent() handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
 		team1, team2 := utils.ParseTeamMessage(e.Message)
 		participantIds := append(team1, team2...)
-		participants := make([]*constants.Rating, 0)
+		participants := make([]constants.Rating, 0)
 
 		ratings, err := utils.GetRatings()
 		if err != nil {
@@ -22,9 +22,9 @@ func ReshuffleComponent() handler.ButtonComponentHandler {
 
 		for _, rating := range ratings {
 			for _, id := range participantIds {
-				if rating.UserID == *id {
+				if rating.UserID == id {
 					ratingCopy := rating
-					participants = append(participants, &ratingCopy)
+					participants = append(participants, ratingCopy)
 					break
 				}
 			}
