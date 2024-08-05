@@ -7,9 +7,8 @@ import (
 	"regexp"
 	"sort"
 
-	"github.com/bwmarrin/snowflake"
 	"github.com/disgoorg/disgo/discord"
-	dSnowflake "github.com/disgoorg/snowflake/v2"
+	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/renja-g/Barkeeper/constants"
 )
@@ -89,14 +88,14 @@ func CalculateTeamRating(team []constants.Rating) int {
 	return rating
 }
 
-func ParseTeamMessage(message discord.Message) ([]dSnowflake.ID, []dSnowflake.ID) {
-	var team1, team2 []dSnowflake.ID
+func ParseTeamMessage(message discord.Message) ([]snowflake.ID, []snowflake.ID) {
+	var team1, team2 []snowflake.ID
 	re := regexp.MustCompile(`<@(\d+)> \d+`)
 	team1Matches := re.FindAllString(message.Embeds[0].Fields[0].Value, -1)
 	team2Matches := re.FindAllString(message.Embeds[0].Fields[1].Value, -1)
 
 	for _, match := range team1Matches {
-		id, err := dSnowflake.Parse(match[2:20])
+		id, err := snowflake.Parse(match[2:20])
 		if err != nil {
 			continue
 		}
@@ -104,7 +103,7 @@ func ParseTeamMessage(message discord.Message) ([]dSnowflake.ID, []dSnowflake.ID
 	}
 
 	for _, match := range team2Matches {
-		id, err := dSnowflake.Parse(match[2:20])
+		id, err := snowflake.Parse(match[2:20])
 		if err != nil {
 			continue
 		}
@@ -116,7 +115,7 @@ func ParseTeamMessage(message discord.Message) ([]dSnowflake.ID, []dSnowflake.ID
 
 func ParseMatchID(message discord.Message) (snowflake.ID, error) {
 	matchID := message.Embeds[0].Footer.Text[9:28]
-	return snowflake.ParseString(matchID)
+	return snowflake.Parse(matchID)
 }
 
 func SortRatingsByWinRate(ratings []constants.Rating) []constants.Rating {
