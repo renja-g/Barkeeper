@@ -3,10 +3,9 @@ package components
 import (
 	"time"
 
-	"github.com/bwmarrin/snowflake"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
-	dSnowflake "github.com/disgoorg/snowflake/v2"
+	"github.com/disgoorg/snowflake/v2"
 	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/constants"
 	"github.com/renja-g/Barkeeper/utils"
@@ -17,23 +16,14 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 		team1Ptr, team2Ptr := utils.ParseTeamMessage(e.Message)
 
 		// Dereference the pointers in the slices
-		team1 := make([]dSnowflake.ID, len(team1Ptr))
-		for i, v := range team1Ptr {
-			team1[i] = v
-		}
-
-		team2 := make([]dSnowflake.ID, len(team2Ptr))
-		for i, v := range team2Ptr {
-			team2[i] = v
-		}
-
-		Node, err := snowflake.NewNode(1)
-		if err != nil {
-			return err
-		}
+		team1 := make([]snowflake.ID, len(team1Ptr))
+		copy(team1, team1Ptr)
+		
+		team2 := make([]snowflake.ID, len(team2Ptr))
+		copy(team2, team2Ptr)
 
 		match := constants.Match{
-			MatchID:   Node.Generate(),
+			MatchID:   snowflake.New(time.Now()),
 			Team1:     team1,
 			Team2:     team2,
 			Timestamp: time.Now().Unix(),
