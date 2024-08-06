@@ -18,7 +18,7 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 		// Dereference the pointers in the slices
 		team1 := make([]snowflake.ID, len(team1Ptr))
 		copy(team1, team1Ptr)
-		
+
 		team2 := make([]snowflake.ID, len(team2Ptr))
 		copy(team2, team2Ptr)
 

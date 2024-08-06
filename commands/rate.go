@@ -33,31 +33,31 @@ func RateHandler() handler.SlashCommandHandler {
 			SetColor(0x00ff00).
 			Build()
 
-		ratings, err := utils.GetRatings()
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
 
 		// Check if the user has already been rated
 		found := false
-		for i, rating := range ratings {
-			if rating.UserID == e.SlashCommandInteractionData().User("user").ID {
-				ratings[i].Rating = e.SlashCommandInteractionData().Int("rating")
+		for i, profile := range profiles {
+			if profile.UserID == e.SlashCommandInteractionData().User("user").ID {
+				profiles[i].Rating = e.SlashCommandInteractionData().Int("rating")
 				found = true
 				break
 			}
 		}
 
-		// If the user has not been rated yet, add a new rating
+		// If the user has not been rated yet, add a new profile
 		if !found {
-			ratings = append(ratings, constants.Rating{
+			profiles = append(profiles, constants.Profile{
 				UserID: e.SlashCommandInteractionData().User("user").ID,
 				Rating: e.SlashCommandInteractionData().Int("rating"),
 				// Wins and losses are set to 0 by default
 			})
 		}
 
-		err = utils.SaveRatings(ratings)
+		err = utils.SaveProfiles(profiles)
 		if err != nil {
 			return err
 		}

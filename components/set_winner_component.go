@@ -39,36 +39,36 @@ func SetWinnerComponent() handler.ButtonComponentHandler {
 		// Update the participants
 		team1Ptr, team2Ptr := utils.ParseTeamMessage(e.Message)
 
-		ratings, err := utils.GetRatings()
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
 
 		// Update the stats
-		for i, rating := range ratings {
+		for i, profile := range profiles {
 			for _, player := range team1Ptr {
-				if rating.UserID == player {
+				if profile.UserID == player {
 					if winner == "team1" {
-						ratings[i].Wins += 1
+						profiles[i].Wins += 1
 					} else {
-						ratings[i].Losses += 1
+						profiles[i].Losses += 1
 					}
 					break
 				}
 			}
 			for _, player := range team2Ptr {
-				if rating.UserID == player {
+				if profile.UserID == player {
 					if winner == "team2" {
-						ratings[i].Wins += 1
+						profiles[i].Wins += 1
 					} else {
-						ratings[i].Losses += 1
+						profiles[i].Losses += 1
 					}
 					break
 				}
 			}
 		}
 
-		err = utils.SaveRatings(ratings)
+		err = utils.SaveProfiles(profiles)
 		if err != nil {
 			return err
 		}

@@ -7,18 +7,18 @@ import (
 	"github.com/renja-g/Barkeeper/constants"
 )
 
-func SaveRatings(ratings []constants.Rating) error {
+func SaveProfiles(profiles []constants.Profile) error {
 	// Open a new file for writing only
-	file, err := os.OpenFile("data/ratings.json", os.O_WRONLY|os.O_CREATE, 0644)
+	file, err := os.OpenFile("data/profiles.json", os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	// Encode the ratings to the JSON format and write it to the file
+	// Encode the profiles to the JSON format and write it to the file
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "    ")
-	err = encoder.Encode(ratings)
+	err = encoder.Encode(profiles)
 	if err != nil {
 		return err
 	}
@@ -26,23 +26,23 @@ func SaveRatings(ratings []constants.Rating) error {
 	return nil
 }
 
-func GetRatings() ([]constants.Rating, error) {
+func GetProfiles() ([]constants.Profile, error) {
 	// Open the file for reading only
-	file, err := os.Open("data/ratings.json")
+	file, err := os.Open("data/profiles.json")
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
 	// Decode the JSON data from the file
-	var ratings []constants.Rating
+	var profiles []constants.Profile
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&ratings)
+	err = decoder.Decode(&profiles)
 	if err != nil {
 		return nil, err
 	}
 
-	return ratings, nil
+	return profiles, nil
 }
 
 func SaveMatches(matches []constants.Match) error {

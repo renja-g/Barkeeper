@@ -13,18 +13,18 @@ func ReshuffleComponent() handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
 		team1, team2 := utils.ParseTeamMessage(e.Message)
 		participantIds := append(team1, team2...)
-		participants := make([]constants.Rating, 0)
+		participants := make([]constants.Profile, 0)
 
-		ratings, err := utils.GetRatings()
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
 
-		for _, rating := range ratings {
+		for _, profile := range profiles {
 			for _, id := range participantIds {
-				if rating.UserID == id {
-					ratingCopy := rating
-					participants = append(participants, ratingCopy)
+				if profile.UserID == id {
+					profileCopy := profile
+					participants = append(participants, profileCopy)
 					break
 				}
 			}

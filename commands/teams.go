@@ -68,38 +68,38 @@ func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
 			})
 		}
 
-		// Check if all members have a rating
-		ratings, err := utils.GetRatings()
+		// Check if all members have a profile
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
 
-		var missingRatings []snowflake.ID
+		var missingProfiles []snowflake.ID
 		for _, id := range ids {
 			found := false
-			for _, rating := range ratings {
-				if rating.UserID == id {
+			for _, profile := range profiles {
+				if profile.UserID == id {
 					found = true
 					break
 				}
 			}
 			if !found {
-				missingRatings = append(missingRatings, id)
+				missingProfiles = append(missingProfiles, id)
 			}
 		}
 
-		// If there are missing ratings, return an error mentioning the users that are missing ratings
-		if len(missingRatings) > 0 {
+		// If there are missing profiles, return an error mentioning the users that are missing a profile
+		if len(missingProfiles) > 0 {
 			var mentions []string
-			for _, id := range missingRatings {
+			for _, id := range missingProfiles {
 				mentions = append(mentions, "<@"+id.String()+">")
 			}
 
 			mentionString := strings.Join(mentions, ", ")
 
 			embed := discord.NewEmbedBuilder().
-				SetTitle("Missing ratings").
-				SetDescriptionf("The following users are missing ratings: %s", mentionString).
+				SetTitle("Missing Profiles").
+				SetDescriptionf("The following users are missing a profile: %s", mentionString).
 				SetColor(0xff0000).
 				Build()
 
@@ -108,19 +108,19 @@ func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
 			})
 		}
 
-		// Get the ratings for the members in the voice channel
-		var memberRatings []constants.Rating
+		// Get the profiles for the members in the voice channel
+		var memberProfiles []constants.Profile
 		for _, id := range ids {
-			for _, rating := range ratings {
-				if rating.UserID == id {
-					memberRatings = append(memberRatings, rating)
+			for _, profile := range profiles {
+				if profile.UserID == id {
+					memberProfiles = append(memberProfiles, profile)
 					break
 				}
 			}
 		}
 
 		// Generate the best teams
-		team1, team2 := utils.GenerateTeams(memberRatings)
+		team1, team2 := utils.GenerateTeams(memberProfiles)
 		team1Rating, team2Rating := utils.CalculateTeamRating(team1), utils.CalculateTeamRating(team2)
 
 		// Create the embed

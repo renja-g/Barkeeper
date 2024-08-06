@@ -14,7 +14,7 @@ import (
 
 var list = discord.SlashCommandCreate{
 	Name:        "list",
-	Description: "Shows a list of all users and their ratings.",
+	Description: "Shows a list of all Profiles and their ratings.",
 	Options: []discord.ApplicationCommandOption{
 		discord.ApplicationCommandOptionString{
 			Name:        "filter",
@@ -30,7 +30,7 @@ var list = discord.SlashCommandCreate{
 
 func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-		ratings, err := utils.GetRatings()
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
@@ -42,15 +42,15 @@ func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
 		const maxFieldsPerEmbed = 21
 		var pages []discord.EmbedBuilder
 
-		pageUsers := make([]constants.Rating, 0)
+		pageUsers := make([]constants.Profile, 0)
 		currentLength := 0
 		fieldCount := 0
-		totalUsers := len(ratings)
+		totalUsers := len(profiles)
 		onlineUsers := 0
 		displayedUsers := 0
 
-		for _, rating := range ratings {
-			isOnline := isUserOnline(b, *guildID, rating.UserID)
+		for _, profile := range profiles {
+			isOnline := isUserOnline(b, *guildID, profile.UserID)
 			if isOnline {
 				onlineUsers++
 			}
@@ -63,18 +63,18 @@ func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
 				continue
 			}
 
-			fieldValue := createFieldValue(rating, isOnline)
+			fieldValue := createFieldValue(profile, isOnline)
 
 			if currentLength+len(fieldValue) > maxEmbedLength || fieldCount >= maxFieldsPerEmbed {
 				embed := createEmbed(pageUsers, totalUsers, onlineUsers, displayedUsers, filter, b, *guildID)
 				pages = append(pages, *embed)
 
-				pageUsers = make([]constants.Rating, 0)
+				pageUsers = make([]constants.Profile, 0)
 				currentLength = 0
 				fieldCount = 0
 			}
 
-			pageUsers = append(pageUsers, rating)
+			pageUsers = append(pageUsers, profile)
 			currentLength += len(fieldValue)
 			fieldCount++
 			displayedUsers++
@@ -97,9 +97,9 @@ func ListHandler(b *dbot.Bot) handler.SlashCommandHandler {
 	}
 }
 
-func createEmbed(users []constants.Rating, totalUsers, onlineUsers, displayedUsers int, filter string, b *dbot.Bot, guildID snowflake.ID) *discord.EmbedBuilder {
+func createEmbed(users []constants.Profile, totalUsers, onlineUsers, displayedUsers int, filter string, b *dbot.Bot, guildID snowflake.ID) *discord.EmbedBuilder {
 	embed := discord.NewEmbedBuilder().
-		SetTitle("User Ratings").
+		SetTitle("User Profiles").
 		SetColor(0x3498db)
 
 	var filterDescription string
@@ -113,19 +113,19 @@ func createEmbed(users []constants.Rating, totalUsers, onlineUsers, displayedUse
 	}
 	embed.SetDescription(filterDescription)
 
-	for _, rating := range users {
-		isOnline := isUserOnline(b, guildID, rating.UserID)
-		fieldValue := createFieldValue(rating, isOnline)
+	for _, profile := range users {
+		isOnline := isUserOnline(b, guildID, profile.UserID)
+		fieldValue := createFieldValue(profile, isOnline)
 		embed.AddField("", fieldValue, true)
 	}
 
 	return embed
 }
 
-func createFieldValue(rating constants.Rating, isOnline bool) string {
+func createFieldValue(profile constants.Profile, isOnline bool) string {
 	winrate := 0.0
-	if total := rating.Wins + rating.Losses; total > 0 {
-		winrate = float64(rating.Wins) / float64(total) * 100
+	if total := profile.Wins + profile.Losses; total > 0 {
+		winrate = float64(profile.Wins) / float64(total) * 100
 	}
 
 	status := ":red_circle:"
@@ -134,7 +134,7 @@ func createFieldValue(rating constants.Rating, isOnline bool) string {
 	}
 
 	return fmt.Sprintf("<@%s> %s\nRating: %d\nW/L: %d/%d\nWinrate: %.2f%%",
-		rating.UserID, status, rating.Rating, rating.Wins, rating.Losses, winrate)
+		profile.UserID, status, profile.Rating, profile.Wins, profile.Losses, winrate)
 }
 
 func isUserOnline(b *dbot.Bot, guildID, userID snowflake.ID) bool {

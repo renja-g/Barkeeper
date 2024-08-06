@@ -21,21 +21,21 @@ var info = discord.SlashCommandCreate{
 
 func InfoHandler() handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-		ratings, err := utils.GetRatings()
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
 
-		// Check if the user has a rating
-		userRating := constants.Rating{}
-		for _, rating := range ratings {
-			if rating.UserID == e.SlashCommandInteractionData().User("user").ID {
-				userRating = rating
+		// Check if the user has a profile
+		userProfile := constants.Profile{}
+		for _, profile := range profiles {
+			if profile.UserID == e.SlashCommandInteractionData().User("user").ID {
+				userProfile = profile
 				break
 			}
 		}
 
-		if userRating.UserID == 0 {
+		if userProfile.UserID == 0 {
 			embed := discord.NewEmbedBuilder().
 				SetTitle("User not found").
 				SetDescriptionf("User %s not found.", e.SlashCommandInteractionData().User("user").Mention()).
@@ -48,14 +48,14 @@ func InfoHandler() handler.SlashCommandHandler {
 		}
 
 		winrate := 0.0
-		total := userRating.Wins + userRating.Losses
+		total := userProfile.Wins + userProfile.Losses
 		if total > 0 {
-			winrate = float64(userRating.Wins) / float64(total) * 100
+			winrate = float64(userProfile.Wins) / float64(total) * 100
 		}
 
 		embed := discord.NewEmbedBuilder().
 			SetTitle("User info").
-			SetDescriptionf("User: %s\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", e.SlashCommandInteractionData().User("user").Mention(), userRating.Rating, userRating.Wins, userRating.Losses, winrate).
+			SetDescriptionf("User: %s\nRating: %d\nWins: %d\nLosses: %d\nWinrate: %.2f%%", e.SlashCommandInteractionData().User("user").Mention(), userProfile.Rating, userProfile.Wins, userProfile.Losses, winrate).
 			SetColor(0x3498db).
 			Build()
 

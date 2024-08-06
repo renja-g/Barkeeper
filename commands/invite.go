@@ -17,24 +17,24 @@ var invite = discord.SlashCommandCreate{
 
 func InviteHandler(b *dbot.Bot) handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-		ratings, err := utils.GetRatings()
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
 
 		guildID := e.GuildID()
-		onlineUsers := make([]constants.Rating, 0)
+		onlineUsers := make([]constants.Profile, 0)
 
-		for _, rating := range ratings {
-			if isUserOnline(b, *guildID, rating.UserID) {
-				onlineUsers = append(onlineUsers, rating)
+		for _, profile := range profiles {
+			if isUserOnline(b, *guildID, profile.UserID) {
+				onlineUsers = append(onlineUsers, profile)
 			}
 		}
 
 		// Send message where all users get pinged
 		message := "Hey, let's play a custom game!\nWho's in?"
-		for _, rating := range onlineUsers {
-			message += fmt.Sprintf("<@%s> ", rating.UserID)
+		for _, profile := range onlineUsers {
+			message += fmt.Sprintf("<@%s> ", profile.UserID)
 		}
 
 		// An embed that shows who's in

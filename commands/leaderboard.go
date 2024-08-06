@@ -16,23 +16,23 @@ var leaderboard = discord.SlashCommandCreate{
 
 func LeaderboardHandler() handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-		ratings, err := utils.GetRatings()
+		profiles, err := utils.GetProfiles()
 		if err != nil {
 			return err
 		}
 
 		// Filter out users with less than 5 games
-		ratings = filterRatings(ratings, 5)
+		profiles = filterProfiles(profiles, 5)
 
-		// Sort ratings and get top 15
+		// Sort profiles and get top 15
 
-		ratings = utils.SortRatingsByWinRate(ratings)
-		if len(ratings) > 15 {
-			ratings = ratings[:15]
+		profiles = utils.SortProfilesByWinRate(profiles)
+		if len(profiles) > 15 {
+			profiles = profiles[:15]
 		}
 
-		fields := make([]discord.EmbedField, len(ratings))
-		for i, r := range ratings {
+		fields := make([]discord.EmbedField, len(profiles))
+		for i, r := range profiles {
 			winrate := 0.0
 			if total := r.Wins + r.Losses; total > 0 {
 				winrate = float64(r.Wins) / float64(total) * 100
@@ -60,9 +60,9 @@ func LeaderboardHandler() handler.SlashCommandHandler {
 	}
 }
 
-func filterRatings(ratings []constants.Rating, minGames int) []constants.Rating {
-	filtered := make([]constants.Rating, 0)
-	for _, r := range ratings {
+func filterProfiles(profiles []constants.Profile, minGames int) []constants.Profile {
+	filtered := make([]constants.Profile, 0)
+	for _, r := range profiles {
 		if r.Wins+r.Losses >= minGames {
 			filtered = append(filtered, r)
 		}

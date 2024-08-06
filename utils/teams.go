@@ -13,21 +13,21 @@ import (
 	"github.com/renja-g/Barkeeper/constants"
 )
 
-func GenerateTeams(users []constants.Rating) ([]constants.Rating, []constants.Rating) {
+func GenerateTeams(users []constants.Profile) ([]constants.Profile, []constants.Profile) {
 	n := len(users)
 	if n%2 != 0 {
 		return nil, nil
 	}
 	halfSize := n / 2
 
-	var bestTeams [][2][]constants.Rating
+	var bestTeams [][2][]constants.Profile
 	minDifference := math.MaxInt32
 
 	// Helper function to calculate the difference in ratings between two teams
-	calculateDifference := func(team1, team2 []constants.Rating) int {
+	calculateDifference := func(team1, team2 []constants.Profile) int {
 		rating1, rating2 := 0, 0
-		for _, user := range team1 {
-			rating1 += user.Rating
+		for _, profile := range team1 {
+			rating1 += profile.Rating
 		}
 		for _, user := range team2 {
 			rating2 += user.Rating
@@ -38,7 +38,7 @@ func GenerateTeams(users []constants.Rating) ([]constants.Rating, []constants.Ra
 	// Generate all possible team combinations using bitwise operations
 	totalCombinations := 1 << n // 2^n
 	for i := 0; i < totalCombinations; i++ {
-		var team1, team2 []constants.Rating
+		var team1, team2 []constants.Profile
 		for j := 0; j < n; j++ {
 			if i&(1<<j) != 0 {
 				team1 = append(team1, users[j])
@@ -50,9 +50,9 @@ func GenerateTeams(users []constants.Rating) ([]constants.Rating, []constants.Ra
 			difference := calculateDifference(team1, team2)
 			if difference < minDifference {
 				minDifference = difference
-				bestTeams = [][2][]constants.Rating{{team1, team2}}
+				bestTeams = [][2][]constants.Profile{{team1, team2}}
 			} else if difference == minDifference {
-				bestTeams = append(bestTeams, [2][]constants.Rating{team1, team2})
+				bestTeams = append(bestTeams, [2][]constants.Profile{team1, team2})
 			}
 		}
 	}
@@ -69,7 +69,7 @@ func GenerateTeams(users []constants.Rating) ([]constants.Rating, []constants.Ra
 	return bestTeam1, bestTeam2
 }
 
-func FormatTeam(team []constants.Rating) string {
+func FormatTeam(team []constants.Profile) string {
 	var formatted string
 	for i, user := range team {
 		if i != 0 {
@@ -80,7 +80,7 @@ func FormatTeam(team []constants.Rating) string {
 	return formatted
 }
 
-func CalculateTeamRating(team []constants.Rating) int {
+func CalculateTeamRating(team []constants.Profile) int {
 	rating := 0
 	for _, user := range team {
 		rating += user.Rating
@@ -118,19 +118,19 @@ func ParseMatchID(message discord.Message) (snowflake.ID, error) {
 	return snowflake.Parse(matchID)
 }
 
-func SortRatingsByWinRate(ratings []constants.Rating) []constants.Rating {
-	sort.Slice(ratings, func(i, j int) bool {
+func SortProfilesByWinRate(profiles []constants.Profile) []constants.Profile {
+	sort.Slice(profiles, func(i, j int) bool {
 		winRate1, winRate2 := 0.0, 0.0
-		if ratings[i].Wins+ratings[i].Losses != 0 {
-			winRate1 = float64(ratings[i].Wins) / float64(ratings[i].Wins+ratings[i].Losses)
+		if profiles[i].Wins+profiles[i].Losses != 0 {
+			winRate1 = float64(profiles[i].Wins) / float64(profiles[i].Wins+profiles[i].Losses)
 		}
-		if ratings[j].Wins+ratings[j].Losses != 0 {
-			winRate2 = float64(ratings[j].Wins) / float64(ratings[j].Wins+ratings[j].Losses)
+		if profiles[j].Wins+profiles[j].Losses != 0 {
+			winRate2 = float64(profiles[j].Wins) / float64(profiles[j].Wins+profiles[j].Losses)
 		}
 		return winRate1 > winRate2
 	})
 
-	return ratings
+	return profiles
 }
 
 func abs(x int) int {
