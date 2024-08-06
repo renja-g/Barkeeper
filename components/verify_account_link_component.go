@@ -9,6 +9,7 @@ import (
 	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/commands"
 	"github.com/renja-g/Barkeeper/constants"
+	"github.com/renja-g/Barkeeper/utils"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
@@ -55,11 +56,48 @@ func VerifyAccountLinkComponent(cfg *dbot.Config) handler.ButtonComponentHandler
 			success = true
 			newEmbed = discord.NewEmbedBuilder().
 				SetTitle("Account Verified").
-				SetDescription(fmt.Sprintf("Account %s#%s has been successfully verified for region %s.", accountData.GameName, accountData.TagLine, accountData.Region)).
+				SetDescription(fmt.Sprintf("Account %s#%s has been successfully linked to your account.", accountData.GameName, accountData.TagLine, accountData.Region)).
 				SetColor(0x00FF00) // Green color
 
-			// TODO, save the verified account data
+			userId := e.User().ID
+			profiles, err := utils.GetProfiles()
+			if err != nil {
+				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to fetch profiles. Please try again later.").Build())
+			}
 
+			// Check if the user already has a profile
+			var userProfile constants.Profile
+			for _, profile := range profiles {
+				if profile.UserID == userId {
+					userProfile = profile
+					break
+				}
+			}
+			if userProfile.UserID == 0 {
+				// Create a new profile
+				userProfile = constants.Profile{
+					UserID:        userId,
+					Rating:        0,
+					Wins:          0,
+					Losses:        0,
+					VerifiedPUUID: &accountData.PUUID,
+				}
+				profiles = append(profiles, userProfile)
+			} else {
+				// Update the existing profile
+				userProfile.VerifiedPUUID = &accountData.PUUID
+				for i, profile := range profiles {
+					if profile.UserID == userId {
+						profiles[i] = userProfile
+						break
+					}
+				}
+			}
+
+			err = utils.SaveProfiles(profiles)
+			if err != nil {
+				return e.CreateMessage(discord.NewMessageCreateBuilder().SetContent("Failed to save profile. Please try again later.").Build())
+			}
 		} else {
 			// Verification failed
 			success = false
