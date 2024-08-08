@@ -56,7 +56,7 @@ func VerifyAccountLinkComponent(cfg *dbot.Config) handler.ButtonComponentHandler
 			success = true
 			newEmbed = discord.NewEmbedBuilder().
 				SetTitle("Account Verified").
-				SetDescription(fmt.Sprintf("Account %s#%s has been successfully linked to your account.", accountData.GameName, accountData.TagLine, accountData.Region)).
+				SetDescription(fmt.Sprintf("Account %s#%s has been successfully linked to your account.", accountData.GameName, accountData.TagLine)).
 				SetColor(0x00FF00) // Green color
 
 			userId := e.User().ID
