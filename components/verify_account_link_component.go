@@ -81,11 +81,13 @@ func VerifyAccountLinkComponent(cfg *dbot.Config) handler.ButtonComponentHandler
 					Wins:          0,
 					Losses:        0,
 					VerifiedPUUID: &accountData.PUUID,
+					SummonerID:    &summonerResponse.ID,
 				}
 				profiles = append(profiles, userProfile)
 			} else {
 				// Update the existing profile
 				userProfile.VerifiedPUUID = &accountData.PUUID
+				userProfile.SummonerID = &summonerResponse.ID
 				for i, profile := range profiles {
 					if profile.UserID == userId {
 						profiles[i] = userProfile

@@ -1,7 +1,12 @@
 package constants
 
 type SummonerResponse struct {
-	ProfileIconId int `json:"profileIconId"`
+	AccountId     string `json:"accountId"`
+	ProfileIconId int    `json:"profileIconId"`
+	RevisionDate  int    `json:"revisionDate"`
+	ID            string `json:"id"`
+	PUUID         string `json:"puuid"`
+	SummonerLevel int    `json:"summonerLevel"`
 }
 
 type RiotAccountResponse struct {
