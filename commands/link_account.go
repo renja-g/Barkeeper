@@ -166,6 +166,7 @@ func sendVerificationMessage(e *handler.CommandEvent, accountData constants.Acco
 		AddActionRow(
 			discord.NewPrimaryButton("Verify", "verify_acc/"+dataID),
 		).
+		SetEphemeral(true).
 		Build(),
 	)
 }
