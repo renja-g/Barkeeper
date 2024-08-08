@@ -63,6 +63,10 @@ func getRegionChoices() []discord.ApplicationCommandOptionChoiceString {
 
 func LinkAccountHandler(cfg *dbot.Config) handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+		if err := e.DeferCreateMessage(true); err != nil {
+			return fmt.Errorf("failed to defer message: %w", err)
+		}
+
 		gameName := data.String("game_name")
 		tagLine := data.String("tag_line")
 		region := data.String("region")
@@ -152,21 +156,31 @@ func getIconName(iconID int) string {
 }
 
 func sendVerificationMessage(e *handler.CommandEvent, accountData constants.AccountData, dataID string) error {
-	iconName := getIconName(accountData.VerifyImageID)
 	imageURL := fmt.Sprintf("https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default//v1/profile-icons/%d.jpg", accountData.VerifyImageID)
 
 	embed := discord.NewEmbedBuilder().
 		SetTitle("Verify Account").
-		SetDescription(fmt.Sprintf("Account %s#%s has been found.\nChange your profile picture to the `%s` and click the verify button.", accountData.GameName, accountData.TagLine, iconName)).
+		SetDescription(fmt.Sprintf(
+			"Account %s#%s has been found.\nChange your profile picture to the `%s` and click the verify button.",
+			accountData.GameName, accountData.TagLine, getIconName(accountData.VerifyImageID)),
+		).
 		SetImage(imageURL).
 		Build()
 
-	return e.CreateMessage(discord.NewMessageCreateBuilder().
-		SetEmbeds(embed).
-		AddActionRow(
-			discord.NewPrimaryButton("Verify", "verify_acc/"+dataID),
-		).
-		SetEphemeral(true).
-		Build(),
+	actionRow := discord.NewPrimaryButton("Verify", "verify_acc/"+dataID)
+
+	_, err := e.Client().Rest().UpdateInteractionResponse(
+		e.ApplicationID(),
+		e.Token(),
+		discord.NewMessageUpdateBuilder().
+			SetEmbeds(embed).
+			AddActionRow(actionRow).
+			Build(),
 	)
+
+	if err != nil {
+		return fmt.Errorf("failed to update interaction response: %w", err)
+	}
+
+	return nil
 }
