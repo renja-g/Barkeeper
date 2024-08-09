@@ -1,6 +1,7 @@
 package components
 
 import (
+	"log"
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
@@ -49,7 +50,8 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 				ChannelID: &blueChannelID,
 			})
 			if err != nil {
-				return err
+				log.Printf("error moving member %s to blue channel: %s", memberID, err)
+				continue
 			}
 		}
 
@@ -58,7 +60,8 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 				ChannelID: &redChannelID,
 			})
 			if err != nil {
-				return err
+				log.Printf("error moving member %s to red channel: %s", memberID, err)
+				continue
 			}
 		}
 
