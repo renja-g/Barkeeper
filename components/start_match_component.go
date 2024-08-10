@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -30,39 +31,13 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 			Timestamp: time.Now().Unix(),
 		}
 
-		// Save the match to the matches.json file
-		matches, err := utils.GetMatches()
-		if err != nil {
-			return err
-		}
-		matches = append(matches, match)
-		err = utils.SaveMatches(matches)
-		if err != nil {
-			return err
+		// Move members into their respective voice channels
+		if err := moveTeamMembers(e, team1, cfg.BlueChannelID); err != nil {
+			log.Printf("Error moving Team Blue members: %v", err)
 		}
 
-		// Move member into their respective voice channels
-		blueChannelID := cfg.BlueChannelID
-		redChannelID := cfg.RedChannelID
-
-		for _, memberID := range team1 {
-			_, err := e.Client().Rest().UpdateMember(*e.GuildID(), memberID, discord.MemberUpdate{
-				ChannelID: &blueChannelID,
-			})
-			if err != nil {
-				log.Printf("error moving member %s to blue channel: %s", memberID, err)
-				continue
-			}
-		}
-
-		for _, memberID := range team2 {
-			_, err := e.Client().Rest().UpdateMember(*e.GuildID(), memberID, discord.MemberUpdate{
-				ChannelID: &redChannelID,
-			})
-			if err != nil {
-				log.Printf("error moving member %s to red channel: %s", memberID, err)
-				continue
-			}
+		if err := moveTeamMembers(e, team2, cfg.RedChannelID); err != nil {
+			log.Printf("Error moving Team Red members: %v", err)
 		}
 
 		// Update the message with the match ID
@@ -70,6 +45,11 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 		embed.Title = "Match started"
 		embed.Footer = &discord.EmbedFooter{
 			Text: "MatchID: " + match.MatchID.String(),
+		}
+
+		// Save the match to the matches.json file
+		if err := saveMatch(match); err != nil {
+			return fmt.Errorf("failed to save match: %w", err)
 		}
 
 		return e.UpdateMessage(discord.NewMessageUpdateBuilder().
@@ -82,4 +62,28 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 			Build(),
 		)
 	}
+}
+
+func moveTeamMembers(e *handler.ComponentEvent, team []snowflake.ID, channelID snowflake.ID) error {
+	for _, memberID := range team {
+		_, err := e.Client().Rest().UpdateMember(*e.GuildID(), memberID, discord.MemberUpdate{
+			ChannelID: &channelID,
+		})
+		if err != nil {
+			log.Printf("Error moving member %s to channel %s: %v", memberID, channelID, err)
+		}
+	}
+	return nil
+}
+
+func saveMatch(match constants.Match) error {
+	matches, err := utils.GetMatches()
+	if err != nil {
+		return fmt.Errorf("failed to get matches: %w", err)
+	}
+	matches = append(matches, match)
+	if err := utils.SaveMatches(matches); err != nil {
+		return fmt.Errorf("failed to save matches: %w", err)
+	}
+	return nil
 }
