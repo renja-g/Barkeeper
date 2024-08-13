@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"regexp"
@@ -91,25 +92,36 @@ func CalculateTeamRating(team []constants.Profile) int {
 func ParseTeamMessage(message discord.Message) ([]snowflake.ID, []snowflake.ID) {
 	var team1, team2 []snowflake.ID
 	re := regexp.MustCompile(`<@(\d+)> \d+`)
-	team1Matches := re.FindAllString(message.Embeds[0].Fields[0].Value, -1)
-	team2Matches := re.FindAllString(message.Embeds[0].Fields[1].Value, -1)
+	team1Matches := re.FindAllStringSubmatch(message.Embeds[0].Fields[0].Value, -1)
+	team2Matches := re.FindAllStringSubmatch(message.Embeds[0].Fields[1].Value, -1)
 
 	for _, match := range team1Matches {
-		id, err := snowflake.Parse(match[2:20])
+		if len(match) < 2 {
+			log.Printf("Unexpected match format for team1: %v", match)
+			continue
+		}
+		id, err := snowflake.Parse(match[1])
 		if err != nil {
+			log.Printf("Error parsing ID for team1: %v", err)
 			continue
 		}
 		team1 = append(team1, id)
 	}
 
 	for _, match := range team2Matches {
-		id, err := snowflake.Parse(match[2:20])
+		if len(match) < 2 {
+			log.Printf("Unexpected match format for team2: %v", match)
+			continue
+		}
+		id, err := snowflake.Parse(match[1])
 		if err != nil {
+			log.Printf("Error parsing ID for team2: %v", err)
 			continue
 		}
 		team2 = append(team2, id)
 	}
-
+	log.Printf("team1: %v", team1)
+	log.Printf("team2: %v", team2)
 	return team1, team2
 }
 
