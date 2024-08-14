@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"regexp"
 	"sort"
+	"log"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
@@ -124,6 +125,7 @@ func ParseTeamMessage(message discord.Message) ([]snowflake.ID, []snowflake.ID) 
 	log.Printf("team2: %v", team2)
 	return team1, team2
 }
+
 
 func ParseMatchID(message discord.Message) (snowflake.ID, error) {
 	matchID := message.Embeds[0].Footer.Text[9:28]
