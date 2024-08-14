@@ -75,8 +75,8 @@ func SetWinnerComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 		}
 
 		// Move members back to the lobby
-		allParticipants := append(team1Ptr, team2Ptr...)
-		moveTeamMembers(e, allParticipants, cfg.LobbyChannelID)
+		participants := append(team1Ptr, team2Ptr...)
+		moveTeamMembers(e, participants, cfg.LobbyChannelID)
 
 		// Update the message with the winner
 		winnnerTeam := "Blue"
