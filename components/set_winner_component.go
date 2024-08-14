@@ -3,10 +3,11 @@ package components
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
+	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/utils"
 )
 
-func SetWinnerComponent() handler.ButtonComponentHandler {
+func SetWinnerComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
 		winner := "team1"
 		if e.ComponentInteraction.Data.CustomID() == "team2_wins_button" {
@@ -72,6 +73,10 @@ func SetWinnerComponent() handler.ButtonComponentHandler {
 		if err != nil {
 			return err
 		}
+
+		// Move members back to the lobby
+		allParticipants := append(team1Ptr, team2Ptr...)
+		moveTeamMembers(e, allParticipants, cfg.LobbyChannelID)
 
 		// Update the message with the winner
 		winnnerTeam := "Blue"

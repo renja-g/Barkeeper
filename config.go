@@ -35,11 +35,12 @@ func LoadConfig() (*Config, error) {
 }
 
 type Config struct {
-	DevMode       bool         `json:"dev_mode"`
-	DevGuildID    snowflake.ID `json:"dev_guild_id"`
-	LogLevel      slog.Level   `json:"log_level"`
-	Token         string       `json:"token"`
-	BlueChannelID snowflake.ID `json:"blue_channel_id"`
-	RedChannelID  snowflake.ID `json:"red_channel_id"`
-	RiotApiKey    string       `json:"riot_api_key"`
+	DevMode        bool         `json:"dev_mode"`
+	DevGuildID     snowflake.ID `json:"dev_guild_id"`
+	LogLevel       slog.Level   `json:"log_level"`
+	Token          string       `json:"token"`
+	BlueChannelID  snowflake.ID `json:"blue_channel_id"`
+	RedChannelID   snowflake.ID `json:"red_channel_id"`
+	LobbyChannelID snowflake.ID `json:"lobby_channel_id"`
+	RiotApiKey     string       `json:"riot_api_key"`
 }

@@ -5,5 +5,6 @@
   "token": "FILL_ME_IN",
   "blue_channel_id": "FILL_ME_IN",
   "red_channel_id": "FILL_ME_IN",
+  "lobby_channel_id": "FILL_ME_IN",
   "riot_api_key": "FILL_ME_IN"
 }
