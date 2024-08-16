@@ -125,7 +125,6 @@ func ParseTeamMessage(message discord.Message) ([]snowflake.ID, []snowflake.ID) 
 	return team1, team2
 }
 
-
 func ParseMatchID(message discord.Message) (snowflake.ID, error) {
 	matchID := message.Embeds[0].Footer.Text[9:28]
 	return snowflake.Parse(matchID)
