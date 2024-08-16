@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"regexp"
 	"sort"
-	"log"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"

@@ -63,7 +63,7 @@ func main() {
 	h.ButtonComponent("/start_match_button", components.StartMatchComponent(cfg))
 	h.ButtonComponent("/team1_wins_button", components.SetWinnerComponent(cfg))
 	h.ButtonComponent("/team2_wins_button", components.SetWinnerComponent(cfg))
-	h.ButtonComponent("/cancel_match_button", components.CancelMatchComponent())
+	h.ButtonComponent("/cancel_match_button", components.CancelMatchComponent(cfg))
 	h.ButtonComponent("/accept_the_invite_button", components.AcceptTheInviteComponent())
 	h.ButtonComponent("/verify_acc/{data}", components.VerifyAccountLinkComponent(cfg))
 
