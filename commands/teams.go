@@ -19,6 +19,10 @@ var teams = discord.SlashCommandCreate{
 
 func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+		if err := e.DeferCreateMessage(false); err != nil {
+			return fmt.Errorf("failed to defer message: %w", err)
+		}
+
 		// Check if the user is in a voice channel
 		voiceState, ok := b.Client.Caches().VoiceState(*e.GuildID(), e.User().ID)
 		if !ok {
@@ -133,12 +137,21 @@ func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
 			AddField(fmt.Sprintf("Red (%d)", team2Rating), utils.FormatTeam(team2), false).
 			Build()
 
-		return e.CreateMessage(discord.NewMessageCreateBuilder().
-			SetEmbeds(embed).
-			AddActionRow(
-				discord.NewPrimaryButton("Start match", "start_match_button"),
-				discord.NewPrimaryButton("Reshuffle", "reshuffle_button")).
-			Build(),
+		_, err = e.Client().Rest().UpdateInteractionResponse(
+			e.ApplicationID(),
+			e.Token(),
+			discord.NewMessageUpdateBuilder().
+				SetEmbeds(embed).
+				AddActionRow(
+					discord.NewPrimaryButton("Start match", "start_match_button"),
+					discord.NewPrimaryButton("Reshuffle", "reshuffle_button")).
+				Build(),
 		)
+
+		if err != nil {
+			return fmt.Errorf("failed to update interaction response: %w", err)
+		}
+
+		return nil
 	}
 }
