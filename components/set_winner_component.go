@@ -1,6 +1,8 @@
 package components
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	dbot "github.com/renja-g/Barkeeper"
@@ -9,6 +11,10 @@ import (
 
 func SetWinnerComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
+		if err := e.DeferUpdateMessage(); err != nil {
+			return fmt.Errorf("failed to defer update: %w", err)
+		}
+
 		winner := "team1"
 		if e.ComponentInteraction.Data.CustomID() == "team2_wins_button" {
 			winner = "team2"
@@ -89,10 +95,18 @@ func SetWinnerComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 		embed.Description = winnnerTeam + " wins the match! 🎉"
 		embed.Color = 0x00ff00
 
-		return e.UpdateMessage(discord.NewMessageUpdateBuilder().
-			SetEmbeds(embed).
-			ClearContainerComponents().
-			Build(),
+		_, err = e.Client().Rest().UpdateInteractionResponse(
+			e.ApplicationID(),
+			e.Token(),
+			discord.NewMessageUpdateBuilder().
+				SetEmbeds(embed).
+				ClearContainerComponents().
+				Build(),
 		)
+		if err != nil {
+			return fmt.Errorf("failed to update interaction response: %w", err)
+		}
+
+		return nil
 	}
 }

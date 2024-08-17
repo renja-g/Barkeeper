@@ -15,6 +15,9 @@ import (
 
 func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
+		if err := e.DeferCreateMessage(false); err != nil {
+			return fmt.Errorf("failed to defer message: %w", err)
+		}
 		team1Ptr, team2Ptr := utils.ParseTeamMessage(e.Message)
 
 		// Dereference the pointers in the slices
@@ -52,15 +55,23 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 			return fmt.Errorf("failed to save match: %w", err)
 		}
 
-		return e.UpdateMessage(discord.NewMessageUpdateBuilder().
-			SetEmbeds(embed).
-			AddActionRow(
-				discord.NewPrimaryButton("Team Blue wins", "team1_wins_button"),
-				discord.NewPrimaryButton("Team Red wins", "team2_wins_button"),
-				discord.NewDangerButton("Cancel match", "cancel_match_button"),
-			).
-			Build(),
+		_, err := e.Client().Rest().UpdateInteractionResponse(
+			e.ApplicationID(),
+			e.Token(),
+			discord.NewMessageUpdateBuilder().
+				SetEmbeds(embed).
+				AddActionRow(
+					discord.NewPrimaryButton("Team Blue wins", "team1_wins_button"),
+					discord.NewPrimaryButton("Team Red wins", "team2_wins_button"),
+					discord.NewDangerButton("Cancel match", "cancel_match_button")).
+				Build(),
 		)
+
+		if err != nil {
+			return fmt.Errorf("failed to update interaction response: %w", err)
+		}
+
+		return nil
 	}
 }
 

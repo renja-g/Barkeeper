@@ -1,6 +1,8 @@
 package components
 
 import (
+	"fmt"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	dbot "github.com/renja-g/Barkeeper"
@@ -10,6 +12,10 @@ import (
 
 func CancelMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
+		if err := e.DeferUpdateMessage(); err != nil {
+			return fmt.Errorf("failed to defer update: %w", err)
+		}
+
 		matches, err := utils.GetMatches()
 		if err != nil {
 			return err
@@ -43,10 +49,18 @@ func CancelMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 		embed.Title = "Match Cancelled"
 		embed.Color = 0xff0000
 
-		return e.UpdateMessage(discord.NewMessageUpdateBuilder().
-			SetEmbeds(embed).
-			ClearContainerComponents().
-			Build(),
+		_, err = e.Client().Rest().UpdateInteractionResponse(
+			e.ApplicationID(),
+			e.Token(),
+			discord.NewMessageUpdateBuilder().
+				SetEmbeds(embed).
+				ClearContainerComponents().
+				Build(),
 		)
+		if err != nil {
+			return fmt.Errorf("failed to update interaction response: %w", err)
+		}
+
+		return nil
 	}
 }
