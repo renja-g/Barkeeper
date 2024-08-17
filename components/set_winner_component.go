@@ -30,9 +30,12 @@ func SetWinnerComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 			return err
 		}
 
-		// Update the match with the winner
+		// Update the match with the winner and check if the match is finished
 		for i, match := range matches {
 			if match.MatchID == matchID {
+				if match.Winner != "" {
+					return nil // The match is already finished (The button was pressed two fast)
+				}
 				matches[i].Winner = winner
 				break
 			}
