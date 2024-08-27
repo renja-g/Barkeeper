@@ -1,5 +1,5 @@
 # Barkeeper
-> Barkeeper is a Discord bot that help to organize custom matches, by generating fair teams and also provides statistical data of past matches.
+Barkeeper is a Discord bot that help to organize custom matches, by generating fair teams and also provides statistical data of past matches.
 
 ## Commands
 - `/rate @user 9`
