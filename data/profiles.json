@@ -2,8 +2,10 @@
     {
         "userID": "319459741287972867",
         "rating": 5,
-        "wins": 14,
-        "losses": 9
+        "wins": 15,
+        "losses": 10,
+        "verifiedPUUID": "C042fyDrKpfIVbmZBhhSW5cRUef22SqKmkWNZ5FT3jaT2pmOorwcDYP6z2joumfCEhZk7nLRqdjwVQ",
+        "summonerID": "2s_BAfXMunU40q1CXPgxhk75NnSkGj2awj4N-u-obAp3PEI"
     },
     {
         "userID": "389130156146425856",
@@ -14,8 +16,8 @@
     {
         "userID": "657936468332904461",
         "rating": 7,
-        "wins": 12,
-        "losses": 11
+        "wins": 13,
+        "losses": 12
     },
     {
         "userID": "809402221568458840",
@@ -27,7 +29,7 @@
         "userID": "246770217064202240",
         "rating": 9,
         "wins": 12,
-        "losses": 9
+        "losses": 11
     },
     {
         "userID": "401448318602969118",
@@ -38,20 +40,20 @@
     {
         "userID": "1041344858008342589",
         "rating": 9,
-        "wins": 10,
+        "wins": 12,
         "losses": 8
     },
     {
         "userID": "693227659777278012",
         "rating": 5,
-        "wins": 5,
-        "losses": 5
+        "wins": 6,
+        "losses": 6
     },
     {
         "userID": "208969370859339779",
         "rating": 7,
-        "wins": 7,
-        "losses": 11
+        "wins": 8,
+        "losses": 12
     },
     {
         "userID": "545341717029847050",
@@ -104,8 +106,8 @@
     {
         "userID": "587686927776350229",
         "rating": 6,
-        "wins": 4,
-        "losses": 9
+        "wins": 5,
+        "losses": 10
     },
     {
         "userID": "235789013829681156",
@@ -122,8 +124,8 @@
     {
         "userID": "568396337394221066",
         "rating": 5,
-        "wins": 1,
-        "losses": 3
+        "wins": 2,
+        "losses": 4
     },
     {
         "userID": "667724171169497110",
@@ -158,8 +160,8 @@
     {
         "userID": "234943983367880704",
         "rating": 4,
-        "wins": 1,
-        "losses": 0
+        "wins": 2,
+        "losses": 1
     },
     {
         "userID": "324187762968363028",
@@ -170,8 +172,8 @@
     {
         "userID": "1243834080374820905",
         "rating": 5,
-        "wins": 0,
-        "losses": 0
+        "wins": 1,
+        "losses": 1
     },
     {
         "userID": "1192926366711165079",
