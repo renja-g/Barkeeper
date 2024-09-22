@@ -55,20 +55,18 @@ func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
 			}
 		})
 
-		/*
-			// Check if there are exactly 10 users in the voice channel
-			if len(ids) != 10 {
-				embed := discord.NewEmbedBuilder().
-					SetTitle("Invalid team").
-					SetDescriptionf("The voice channel you are in does not have exactly 10 members.").
-					SetColor(0xff0000).
-					Build()
+		// Check if there are exactly 10 users in the voice channel
+		if len(ids) != 10 {
+			embed := discord.NewEmbedBuilder().
+				SetTitle("Invalid team").
+				SetDescriptionf("The voice channel you are in does not have exactly 10 members.").
+				SetColor(0xff0000).
+				Build()
 
-				return e.CreateMessage(discord.MessageCreate{
-					Embeds: []discord.Embed{embed},
-				})
-			}
-		*/
+			return e.CreateMessage(discord.MessageCreate{
+				Embeds: []discord.Embed{embed},
+			})
+		}
 
 		// Check if all members have a profile
 		profiles, err := utils.GetProfiles()
