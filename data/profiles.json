@@ -10,26 +10,26 @@
     {
         "userID": "389130156146425856",
         "rating": 6,
-        "wins": 12,
-        "losses": 7
+        "wins": 15,
+        "losses": 8
     },
     {
         "userID": "657936468332904461",
         "rating": 7,
-        "wins": 13,
-        "losses": 12
+        "wins": 14,
+        "losses": 16
     },
     {
         "userID": "809402221568458840",
-        "rating": 5,
-        "wins": 1,
-        "losses": 1
+        "rating": 4,
+        "wins": 2,
+        "losses": 2
     },
     {
         "userID": "246770217064202240",
         "rating": 9,
-        "wins": 12,
-        "losses": 11
+        "wins": 17,
+        "losses": 13
     },
     {
         "userID": "401448318602969118",
@@ -40,20 +40,20 @@
     {
         "userID": "1041344858008342589",
         "rating": 9,
-        "wins": 12,
-        "losses": 8
+        "wins": 16,
+        "losses": 11
     },
     {
         "userID": "693227659777278012",
         "rating": 5,
-        "wins": 6,
-        "losses": 6
+        "wins": 11,
+        "losses": 8
     },
     {
         "userID": "208969370859339779",
         "rating": 7,
-        "wins": 8,
-        "losses": 12
+        "wins": 11,
+        "losses": 16
     },
     {
         "userID": "545341717029847050",
@@ -64,14 +64,14 @@
     {
         "userID": "363607955989331971",
         "rating": 5,
-        "wins": 1,
-        "losses": 1
+        "wins": 2,
+        "losses": 2
     },
     {
         "userID": "879378292308869170",
-        "rating": 6,
-        "wins": 6,
-        "losses": 5
+        "rating": 5,
+        "wins": 7,
+        "losses": 9
     },
     {
         "userID": "301464399212707840",
@@ -93,9 +93,9 @@
     },
     {
         "userID": "333178799556657155",
-        "rating": 5,
+        "rating": 6,
         "wins": 1,
-        "losses": 0
+        "losses": 1
     },
     {
         "userID": "665658422556885022",
@@ -106,8 +106,8 @@
     {
         "userID": "587686927776350229",
         "rating": 6,
-        "wins": 5,
-        "losses": 10
+        "wins": 7,
+        "losses": 11
     },
     {
         "userID": "235789013829681156",
@@ -123,15 +123,15 @@
     },
     {
         "userID": "568396337394221066",
-        "rating": 5,
-        "wins": 2,
-        "losses": 4
+        "rating": 6,
+        "wins": 6,
+        "losses": 5
     },
     {
         "userID": "667724171169497110",
         "rating": 10,
-        "wins": 4,
-        "losses": 1
+        "wins": 5,
+        "losses": 3
     },
     {
         "userID": "411193561045008384",
@@ -160,14 +160,14 @@
     {
         "userID": "234943983367880704",
         "rating": 4,
-        "wins": 2,
-        "losses": 1
+        "wins": 3,
+        "losses": 4
     },
     {
         "userID": "324187762968363028",
         "rating": 4,
-        "wins": 1,
-        "losses": 0
+        "wins": 4,
+        "losses": 1
     },
     {
         "userID": "1243834080374820905",
@@ -185,6 +185,18 @@
         "userID": "392758669428654080",
         "rating": 6,
         "wins": 0,
-        "losses": 0
+        "losses": 2
+    },
+    {
+        "userID": "272332811933843456",
+        "rating": 4,
+        "wins": 0,
+        "losses": 1
+    },
+    {
+        "userID": "339765835692376064",
+        "rating": 6,
+        "wins": 0,
+        "losses": 1
     }
 ]
