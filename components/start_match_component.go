@@ -15,8 +15,8 @@ import (
 
 func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
-		if err := e.DeferCreateMessage(false); err != nil {
-			return fmt.Errorf("failed to defer message: %w", err)
+		if err := e.DeferUpdateMessage(); err != nil {
+			return fmt.Errorf("failed to defer update: %w", err)
 		}
 		team1Ptr, team2Ptr := utils.ParseTeamMessage(e.Message)
 
