@@ -43,4 +43,5 @@ type Config struct {
 	RedChannelID   snowflake.ID `json:"red_channel_id"`
 	LobbyChannelID snowflake.ID `json:"lobby_channel_id"`
 	RiotApiKey     string       `json:"riot_api_key"`
+	AdminRoleID    snowflake.ID `json:"admin_role_id"`
 }

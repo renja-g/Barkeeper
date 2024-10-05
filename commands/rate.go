@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
+	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/constants"
 	"github.com/renja-g/Barkeeper/utils"
 )
@@ -25,8 +26,18 @@ var rate = discord.SlashCommandCreate{
 	},
 }
 
-func RateHandler() handler.SlashCommandHandler {
+func RateHandler(cfg *dbot.Config) handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+		// Check if the user has the admin role
+		member, err := e.Client().Rest().GetMember(*e.GuildID(), e.User().ID)
+		if err != nil {
+			return err
+		}
+
+		if !utils.HasAdminRole(member, cfg.AdminRoleID) {
+			return nil
+		}
+
 		embed := discord.NewEmbedBuilder().
 			SetTitle("Rating set").
 			SetDescriptionf("Rating for %s set to %d", e.SlashCommandInteractionData().User("user").Mention(), e.SlashCommandInteractionData().Int("rating")).

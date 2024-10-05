@@ -15,6 +15,16 @@ import (
 
 func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
+		// Check if the user has the admin role
+		member, err := e.Client().Rest().GetMember(*e.GuildID(), e.User().ID)
+		if err != nil {
+			return err
+		}
+
+		if !utils.HasAdminRole(member, cfg.AdminRoleID) {
+			return nil
+		}
+
 		if err := e.DeferUpdateMessage(); err != nil {
 			return fmt.Errorf("failed to defer update: %w", err)
 		}
@@ -55,7 +65,7 @@ func StartMatchComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 			return fmt.Errorf("failed to save match: %w", err)
 		}
 
-		_, err := e.Client().Rest().UpdateInteractionResponse(
+		_, err = e.Client().Rest().UpdateInteractionResponse(
 			e.ApplicationID(),
 			e.Token(),
 			discord.NewMessageUpdateBuilder().

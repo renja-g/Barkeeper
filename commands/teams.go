@@ -17,8 +17,18 @@ var teams = discord.SlashCommandCreate{
 	Description: "Generates fair teams with the users in the voice channel you are in.",
 }
 
-func TeamsHandler(b *dbot.Bot) handler.SlashCommandHandler {
+func TeamsHandler(b *dbot.Bot, cfg *dbot.Config) handler.SlashCommandHandler {
 	return func(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+		// Check if the user has the admin role
+		member, err := e.Client().Rest().GetMember(*e.GuildID(), e.User().ID)
+		if err != nil {
+			return err
+		}
+
+		if !utils.HasAdminRole(member, cfg.AdminRoleID) {
+			return nil
+		}
+
 		// Check if the user is in a voice channel
 		voiceState, ok := b.Client.Caches().VoiceState(*e.GuildID(), e.User().ID)
 		if !ok {

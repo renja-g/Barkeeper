@@ -11,6 +11,16 @@ import (
 
 func SetWinnerComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
+		// Check if the user has the admin role
+		member, err := e.Client().Rest().GetMember(*e.GuildID(), e.User().ID)
+		if err != nil {
+			return err
+		}
+
+		if !utils.HasAdminRole(member, cfg.AdminRoleID) {
+			return nil
+		}
+
 		if err := e.DeferUpdateMessage(); err != nil {
 			return fmt.Errorf("failed to defer update: %w", err)
 		}

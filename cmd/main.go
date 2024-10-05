@@ -48,10 +48,10 @@ func main() {
 	b := dbot.New(logger, version, *cfg)
 
 	h := handler.New()
-	h.SlashCommand("/rate", commands.RateHandler())
+	h.SlashCommand("/rate", commands.RateHandler(cfg))
 	h.Autocomplete("/rate", commands.RateAutocompleteHandler)
 	h.SlashCommand("/info", commands.InfoHandler())
-	h.SlashCommand("/teams", commands.TeamsHandler(b))
+	h.SlashCommand("/teams", commands.TeamsHandler(b, cfg))
 	h.SlashCommand("/leaderboard", commands.LeaderboardHandler())
 	h.SlashCommand("/history", commands.HistoryHandler(b))
 	h.SlashCommand("/list", commands.ListHandler(b))
@@ -59,7 +59,7 @@ func main() {
 	h.SlashCommand("/help", commands.HelpHandler())
 	h.SlashCommand("/link_account", commands.LinkAccountHandler(cfg))
 
-	h.ButtonComponent("/reshuffle_button", components.ReshuffleComponent())
+	h.ButtonComponent("/reshuffle_button", components.ReshuffleComponent(cfg))
 	h.ButtonComponent("/start_match_button", components.StartMatchComponent(cfg))
 	h.ButtonComponent("/team1_wins_button", components.SetWinnerComponent(cfg))
 	h.ButtonComponent("/team2_wins_button", components.SetWinnerComponent(cfg))

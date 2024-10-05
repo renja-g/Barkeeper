@@ -5,12 +5,23 @@ import (
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
+	dbot "github.com/renja-g/Barkeeper"
 	"github.com/renja-g/Barkeeper/constants"
 	"github.com/renja-g/Barkeeper/utils"
 )
 
-func ReshuffleComponent() handler.ButtonComponentHandler {
+func ReshuffleComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 	return func(data discord.ButtonInteractionData, e *handler.ComponentEvent) error {
+		// Check if the user has the admin role
+		member, err := e.Client().Rest().GetMember(*e.GuildID(), e.User().ID)
+		if err != nil {
+			return err
+		}
+
+		if !utils.HasAdminRole(member, cfg.AdminRoleID) {
+			return nil
+		}
+
 		team1, team2 := utils.ParseTeamMessage(e.Message)
 		participantIds := append(team1, team2...)
 		participants := make([]constants.Profile, 0)
