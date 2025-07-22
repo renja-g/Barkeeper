@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   bot:
     build:
@@ -5,11 +7,14 @@ services:
       dockerfile: cmd/Dockerfile
     restart: unless-stopped
     volumes:
-      - ./config.json:/opt/bot/config.json
+      - ./config.json:/opt/bot/config.json:ro
       - ./data:/opt/bot/data
     command: --sync-commands=true
     networks:
-      - bot
+      - dokploy-network
+    labels:
+      - "traefik.enable=false" # Change to true & add router rules if you expose HTTP endpoints later
 
 networks:
-  bot:
+  dokploy-network:
+    external: true
