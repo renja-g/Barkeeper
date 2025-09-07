@@ -18,7 +18,7 @@ func ReshuffleComponent(cfg *dbot.Config) handler.ButtonComponentHandler {
 			return err
 		}
 
-		if !utils.HasAdminRole(member, cfg.AdminRoleID) {
+		if !utils.HasAdminRole(member, cfg.AdminRoleForGuild(*e.GuildID())) {
 			return nil
 		}
 

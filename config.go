@@ -35,13 +35,24 @@ func LoadConfig() (*Config, error) {
 }
 
 type Config struct {
-	DevMode        bool         `json:"dev_mode"`
-	DevGuildID     snowflake.ID `json:"dev_guild_id"`
-	LogLevel       slog.Level   `json:"log_level"`
-	Token          string       `json:"token"`
-	BlueChannelID  snowflake.ID `json:"blue_channel_id"`
-	RedChannelID   snowflake.ID `json:"red_channel_id"`
-	LobbyChannelID snowflake.ID `json:"lobby_channel_id"`
-	RiotApiKey     string       `json:"riot_api_key"`
-	AdminRoleID    snowflake.ID `json:"admin_role_id"`
+	DevMode           bool                          `json:"dev_mode"`
+	DevGuildID        snowflake.ID                  `json:"dev_guild_id"`
+	LogLevel          slog.Level                    `json:"log_level"`
+	Token             string                        `json:"token"`
+	BlueChannelID     snowflake.ID                  `json:"blue_channel_id"`
+	RedChannelID      snowflake.ID                  `json:"red_channel_id"`
+	LobbyChannelID    snowflake.ID                  `json:"lobby_channel_id"`
+	RiotApiKey        string                        `json:"riot_api_key"`
+	GuildAdminRoleIDs map[snowflake.ID]snowflake.ID `json:"guild_admin_role_ids"`
+}
+
+// AdminRoleForGuild returns the configured admin role for the given guild.
+// If none is configured, it returns 0.
+func (cfg *Config) AdminRoleForGuild(guildID snowflake.ID) snowflake.ID {
+	if cfg != nil && cfg.GuildAdminRoleIDs != nil {
+		if id, ok := cfg.GuildAdminRoleIDs[guildID]; ok {
+			return id
+		}
+	}
+	return 0
 }
