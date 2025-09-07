@@ -6,5 +6,9 @@
   "blue_channel_id": "FILL_ME_IN",
   "red_channel_id": "FILL_ME_IN",
   "lobby_channel_id": "FILL_ME_IN",
-  "riot_api_key": "FILL_ME_IN"
+  "riot_api_key": "FILL_ME_IN",
+  "guild_admin_role_ids": {
+    "GUILD_ID_1": "ROLE_ID_1",
+    "GUILD_ID_2": "ROLE_ID_2"
+  }
 }
